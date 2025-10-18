@@ -1,6 +1,6 @@
 // Build all samples into ./site, preserving relative structure with slugified paths.
 import { globby } from 'globby';
-import { execa } from 'node:child_process';
+import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'node:path';
 
@@ -41,14 +41,15 @@ for (const indexFile of indexes.sort()) {
     'vite',
     'build',
     '--config',
-    'vite.config.ts',
-    '--root',
-    sampleDir,
+    path.join(ROOT, 'vite.config.ts'),
     '--base',
     './',
     '--outDir',
     destDir
-  ], { stdio: 'inherit' });
+  ], {
+    stdio: 'inherit',
+    cwd: sampleDir
+  });
 
   const category = rel.split(path.sep)[0] || 'samples';
   cards.push({ title: path.basename(sampleDir), rel, slugRel, category });
