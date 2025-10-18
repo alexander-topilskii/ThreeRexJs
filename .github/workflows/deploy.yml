@@ -1,0 +1,156 @@
+name: Build & Deploy Samples (recursive)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build all samples recursively and assemble site
+        run: |
+          set -euo pipefail
+
+          ROOT="$GITHUB_WORKSPACE"
+          OUT="$ROOT/site"
+          SRC="$ROOT/samples"
+          mkdir -p "$OUT"
+
+          # slugify: "Cubes/Sample 1" -> "cubes/sample-1"
+          slugify() {
+            echo "$1" \
+              | tr '[:upper:]' '[:lower:]' \
+              | sed -E 's/[^a-z0-9/_ -]+//g' \
+              | sed -E 's/[[:space:]]+/-/g' \
+              | sed -E 's/-{2,}/-/g' \
+              | sed -E 's|/+|/|g' \
+              | sed -E 's|^/+||; s|/+$||'
+          }
+
+          # HTML шапка
+          INDEX="$OUT/index.html"
+          cat > "$INDEX" << 'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+            <title>Three.js Samples</title>
+            <style>
+              :root { color-scheme: light; }
+              body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;margin:0;padding:24px;max-width:1100px}
+              h1{margin:0 0 8px}
+              p.note{color:#6b7280;margin:0 0 20px}
+              .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+              a.card{display:block;padding:14px;border:1px solid #e5e7eb;border-radius:12px;text-decoration:none;color:inherit}
+              a.card:hover{background:#f9fafb}
+              .path{color:#6b7280;font-size:12px}
+              .tag{display:inline-block;font-size:12px;background:#eef2ff;border:1px solid #e0e7ff;border-radius:999px;padding:2px 8px;margin-left:8px}
+            </style>
+          </head>
+          <body>
+            <h1>Three.js Samples</h1>
+            <p class="note">Ниже — все найденные семплы из каталога <code>samples/</code> (рекурсивно). Папки с пробелами автоматически получают "slug" в ссылке.</p>
+            <div class="grid">
+          HTML
+
+          # найти все index.html под samples/
+          mapfile -t INDEXES < <(find "$SRC" -type f -name index.html | sort)
+
+          if [[ ${#INDEXES[@]} -eq 0 ]]; then
+            echo "Не найдено ни одного samples/**/index.html"
+          fi
+
+          for idx in "${INDEXES[@]}"; do
+            SAMPLE_DIR="$(dirname "$idx")"
+
+            # относительный путь от samples/ (для отображения)
+            REL="${SAMPLE_DIR#"$SRC/"}"          # например "cubes/sample 1"
+            DISPLAY_PATH="$REL"
+
+            # slug-путь
+            SLUG_REL="$(slugify "$REL")"         # "cubes/sample-1"
+            DEST_DIR="$OUT/$SLUG_REL"
+            mkdir -p "$DEST_DIR"
+
+            echo "==> $DISPLAY_PATH  ->  $SLUG_REL"
+
+            # Если есть package.json и скрипт build — собираем
+            if [[ -f "$SAMPLE_DIR/package.json" ]]; then
+              # проверим, есть ли build
+              if jq -er '.scripts.build' "$SAMPLE_DIR/package.json" >/dev/null 2>&1; then
+                echo "   build detected"
+                pushd "$SAMPLE_DIR" >/dev/null
+                if [[ -f package-lock.json ]]; then
+                  npm ci
+                else
+                  npm i --no-audit --no-fund
+                fi
+                npm run build
+                popd >/dev/null
+
+                # копируем dist/ если он появился, иначе копируем исходники
+                if [[ -d "$SAMPLE_DIR/dist" ]]; then
+                  cp -R "$SAMPLE_DIR/dist/"* "$DEST_DIR/"
+                else
+                  echo "   warning: dist/ не найден, копирую исходники"
+                  cp -R "$SAMPLE_DIR/"* "$DEST_DIR/"
+                fi
+              else
+                echo "   package.json без scripts.build — копирую исходники"
+                cp -R "$SAMPLE_DIR/"* "$DEST_DIR/"
+              fi
+            else
+              # просто копия
+              cp -R "$SAMPLE_DIR/"* "$DEST_DIR/"
+            fi
+
+            # карточка
+            # категория — первая часть REL (например, "cubes" или "shaders")
+            CATEGORY="$(echo "$REL" | cut -d'/' -f1)"
+            cat >> "$INDEX" << HTML
+              <a class="card" href="./$SLUG_REL/" target="_self">
+                <strong>${REL##*/}</strong>
+                <span class="tag">$CATEGORY</span>
+                <div class="path">samples/$DISPLAY_PATH</div>
+              </a>
+          HTML
+          done
+
+          # закрываем HTML
+          cat >> "$INDEX" << 'HTML'
+            </div>
+          </body>
+          </html>
+          HTML
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
