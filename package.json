@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "dev:sample": "vite --root samples/cubes/sample-1",
+    "dev": "node scripts/dev.mjs",
+    "dev:sample": "node scripts/dev.mjs samples/cubes/sample-1",
     "build": "node scripts/build-all.mjs",
     "preview": "vite preview --strictPort"
   },

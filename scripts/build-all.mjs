@@ -35,7 +35,7 @@ for (const indexFile of indexes.sort()) {
   await fs.ensureDir(destDir);
 
   // Build with Vite (TS support via root tsconfig)
-  // We'll run: vite build --config vite.config.ts --root <sampleDir> --base ./ --outDir <destDir>
+  // We'll run: (cwd = <sampleDir>) vite build --config vite.config.ts --base ./ --outDir <destDir>
   console.log(`Building: ${rel} -> ${path.relative(ROOT, destDir)}`);
   await execa('npx', [
     'vite',
