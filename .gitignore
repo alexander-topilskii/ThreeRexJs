@@ -6,6 +6,10 @@ node_modules/
 
 # Build outputs
 dist/
+site/
+
+# Generated data files
+homepage/src/__generated-samples.ts
 
 # Logs
 npm-debug.log*

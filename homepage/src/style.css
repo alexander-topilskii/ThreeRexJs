@@ -1,0 +1,140 @@
+:root {
+  color-scheme: light;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+body {
+  margin: 0;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+.layout {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+}
+
+header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+header h1 {
+  font-size: clamp(32px, 5vw, 48px);
+  margin: 0;
+  line-height: 1.05;
+}
+
+header p.lead {
+  margin: 0;
+  font-size: 18px;
+  color: #475569;
+  max-width: 640px;
+}
+
+section {
+  margin-top: 44px;
+}
+
+section:first-of-type {
+  margin-top: 0;
+}
+
+section h2 {
+  font-size: 22px;
+  margin: 0 0 16px;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+section h2 span.badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.12);
+  color: #1d4ed8;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.cards a.card {
+  text-decoration: none;
+  background: white;
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.cards a.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 38px rgba(15, 23, 42, 0.1);
+}
+
+.cards strong {
+  font-size: 18px;
+}
+
+.cards span.path {
+  font-size: 13px;
+  color: #64748b;
+  font-family: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.cards span.desc {
+  font-size: 14px;
+  color: #475569;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+nav a {
+  text-decoration: none;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.08);
+  color: #0f766e;
+  border: 1px solid rgba(13, 148, 136, 0.2);
+}
+
+nav a:hover {
+  background: rgba(13, 148, 136, 0.12);
+}
+
+@media (max-width: 640px) {
+  .layout {
+    padding: 24px 16px 48px;
+  }
+
+  header h1 {
+    font-size: 32px;
+  }
+}
