@@ -1,6 +1,9 @@
 import './style.css';
 import { categories } from './__generated-samples';
 
+declare const __APP_VERSION__: string;
+declare const __APP_COMMIT_HASH__: string;
+
 type Category = (typeof categories)[number];
 
 type Entry = Category['items'][number];
@@ -42,5 +45,8 @@ app.innerHTML = `
       ${renderNav(categories)}
     </header>
     ${categories.map(renderSection).join('')}
+    <footer class="build-meta">
+      Сборка ${__APP_VERSION__} · коммит ${__APP_COMMIT_HASH__}
+    </footer>
   </div>
 `;
