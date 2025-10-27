@@ -5,19 +5,22 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev.mjs",
-    "dev:sample": "node scripts/dev.mjs samples/cubes/sample-1",
+    "dev:cube_sample_1": "node scripts/dev.mjs samples/cubes/sample-1",
+    "dev:cube_fps_1": "node scripts/dev.mjs samples/cubes/fps-1",
+    "dev:cube_shaders_1": "node scripts/dev.mjs samples/shaders/sample-1",
     "build": "node scripts/build-all.mjs",
     "preview": "vite preview --strictPort"
   },
   "dependencies": {
+    "stats.js": "^0.17.0",
     "three": "^0.169.0"
   },
   "devDependencies": {
     "@types/three": "^0.169.0",
-    "typescript": "^5.6.2",
-    "vite": "^5.4.10",
-    "globby": "^14.0.2",
+    "execa": "^9.4.0",
     "fs-extra": "^11.2.0",
-    "execa": "^9.4.0"
+    "globby": "^14.0.2",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.10"
   }
 }
