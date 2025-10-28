@@ -10,6 +10,7 @@ import {OimoPhysics} from '../../../common/physics/OimoPhysics';
 import {createTransformPanel} from '../../../common/panel_utils';
 import {createGradientPlane, createGrid} from "../../../common/plane_helpers";
 import {createPlayerController} from '../../../common/player_utils';
+import {Player} from '../../../common/Player';
 
 // === Сцена ===
 const scene = new THREE.Scene();
@@ -86,6 +87,29 @@ physics.addMesh(wallEast, 0);
 // cube — динамический (mass = 1)
 physics.addMesh(cube, 1);
 
+// === Игрок ===
+const player = new Player(physics, {
+    position: { x: 5, y: 1, z: 5 },
+    speed: 5,
+    jumpForce: 8
+});
+scene.add(player.mesh);
+
+// Управление режимами (Shift для переключения)
+let playerMode = false;
+window.addEventListener('keydown', (e) => {
+    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        playerMode = true;
+        controller.enabled = false;
+    }
+});
+window.addEventListener('keyup', (e) => {
+    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+        playerMode = false;
+        controller.enabled = true;
+    }
+});
+
 
 // === Overlay для текста ===
 const info = getInfoBlock()
@@ -102,8 +126,23 @@ function animate() {
     const dt = (now - prevTime) / 1000;
     prevTime = now;
 
-    // Обновляем контроллер камеры
-    controller.update(dt);
+    // Обновляем контроллер камеры (только если не в режиме игрока)
+    if (!playerMode) {
+        controller.update(dt);
+    }
+
+    // Обновляем игрока (только в режиме игрока)
+    if (playerMode) {
+        player.update(dt, camera);
+    }
+
+    // Проверяем близость к кубу для подбора
+    const distToCube = player.getPosition().distanceTo(cube.position);
+    if (distToCube < 3) {
+        player.setNearbyPickupTarget(cube);
+    } else {
+        player.setNearbyPickupTarget(null);
+    }
 
     // Шаг физики только когда включен auto
     if (auto.checked && physics) {
@@ -120,7 +159,10 @@ function animate() {
 animate();
 
 // Очистка обработчиков при выгрузке страницы
-window.addEventListener('beforeunload', () => controller.dispose());
+window.addEventListener('beforeunload', () => {
+    controller.dispose();
+    player.dispose();
+});
 
 // === Resize ===
 window.addEventListener('resize', () => {

@@ -13,6 +13,7 @@ export type PlayerControllerOptions = {
 export type PlayerController = {
   update: (dt: number) => void;
   dispose: () => void;
+  enabled: boolean;
   state: {
     yaw: number;
     pitch: number;
@@ -39,6 +40,7 @@ export function createPlayerController(
   const keys = new Set<string>();
   let yaw = options.initialYaw ?? 0;
   let pitch = options.initialPitch ?? 0;
+  let enabled = true;
 
   // Init camera orientation and position
   camera.rotation.order = 'YXZ';
@@ -53,12 +55,14 @@ export function createPlayerController(
   const tmpMove = new THREE.Vector3();
 
   // Pointer lock start on click
-  const onClick = () => domElement.requestPointerLock();
+  const onClick = () => {
+    if (enabled) domElement.requestPointerLock();
+  };
   domElement.addEventListener('click', onClick);
 
   // Mouse look while locked
   const onMouseMove = (e: MouseEvent) => {
-    if (document.pointerLockElement !== domElement) return;
+    if (!enabled || document.pointerLockElement !== domElement) return;
     yaw   -= e.movementX * mouseSensitivity;
     pitch -= e.movementY * mouseSensitivity;
     if (pitch > clampPitch) pitch = clampPitch;
@@ -73,6 +77,8 @@ export function createPlayerController(
   window.addEventListener('keyup', onKeyUp);
 
   function update(dt: number) {
+    if (!enabled) return;
+
     // Apply mouse look
     camera.rotation.y = yaw;
     camera.rotation.x = pitch;
@@ -105,5 +111,13 @@ export function createPlayerController(
     window.removeEventListener('keyup', onKeyUp);
   }
 
-  return { update, dispose, state: { yaw, pitch, keys } };
+  const controller = {
+    update,
+    dispose,
+    get enabled() { return enabled; },
+    set enabled(val: boolean) { enabled = val; },
+    state: { yaw, pitch, keys }
+  };
+
+  return controller;
 }
