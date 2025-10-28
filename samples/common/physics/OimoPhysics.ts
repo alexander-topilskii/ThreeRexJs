@@ -96,7 +96,15 @@ export async function OimoPhysics() {
     }
   }
 
-  return { addMesh, step };
+  function updateMesh(mesh: THREE.Object3D) {
+    const record = records.find(r => r.mesh === mesh);
+    if (!record) return;
+
+    record.body.resetPosition(mesh.position.x, mesh.position.y, mesh.position.z);
+    record.body.resetQuaternion((mesh as any).quaternion);
+  }
+
+  return { addMesh, step, updateMesh };
 }
 
 export type OimoHelper = Awaited<ReturnType<typeof OimoPhysics>>;

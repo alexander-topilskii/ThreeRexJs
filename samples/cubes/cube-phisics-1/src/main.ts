@@ -6,7 +6,7 @@ import {
     updateCubeRotationText
 } from '../../../common/html_utils';
 import {createCube, getPerspectiveCamera} from '../../../common/three_utils';
-import { OimoPhysics } from '../../../common/physics/OimoPhysics';
+import {OimoPhysics} from '../../../common/physics/OimoPhysics';
 import {createTransformPanel} from '../../../common/panel_utils';
 import {createGradientPlane, createGrid} from "../../../common/plane_helpers";
 import {createPlayerController} from '../../../common/player_utils';
@@ -21,13 +21,12 @@ document.body.appendChild(renderer.domElement);
 
 // --- Управление камерой: вынос в player_utils ---
 const controller = createPlayerController(camera, renderer.domElement, {
-    initialPosition: { x: 0, y: 2.5, z: 6 },
+    initialPosition: {x: 0, y: 2.5, z: 6},
     initialPitch: -0.35,
 });
 let prevTime = performance.now();
 
 const cube = createCube();
-cube.position.set(0, 3, 0);
 scene.add(cube);
 
 const ground = createGradientPlane(40, 40);
@@ -39,7 +38,7 @@ scene.add(grid);
 // Добавим невидимый box-коллайдер для ground (толщина 2.0, верх на уровне плоскости)
 const groundCollider = new THREE.Mesh(
     new THREE.BoxGeometry(40, 2.0, 40),
-    new THREE.MeshBasicMaterial({ visible: false })
+    new THREE.MeshBasicMaterial({visible: false})
 );
 // Центр на 1.0 ниже верхней поверхности, чтобы верх совпадал с плоскостью ground
 groundCollider.position.set(0, ground.position.y - 1.0, 0);
@@ -73,7 +72,7 @@ function animate() {
 
     // Шаг физики только когда включен auto
     if (auto.checked && physics) {
-        try { physics.step?.(dt); } catch { physics.step?.(); }
+        physics.step?.(dt);
     }
 
     // обновляем текст
@@ -109,6 +108,7 @@ syncUIFromCube();
 [panel.positions.x, panel.positions.y, panel.positions.z].forEach((s) => {
     s.addEventListener('input', () => {
         updateCubePositionText(panel, cube.position);
+        physics.updateMesh?.(cube);
     });
 });
 
@@ -116,5 +116,6 @@ syncUIFromCube();
 [panel.rotations.x, panel.rotations.y, panel.rotations.z].forEach((s) => {
     s.addEventListener('input', () => {
         updateCubeRotationText(panel, cube.rotation);
+        physics.updateMesh?.(cube);
     });
 });//d
