@@ -27,6 +27,7 @@ const controller = createPlayerController(camera, renderer.domElement, {
 let prevTime = performance.now();
 
 const cube = createCube();
+cube.position.set(0, 3, 0);
 scene.add(cube);
 
 const ground = createGradientPlane(40, 40);
@@ -35,12 +36,13 @@ scene.add(ground);
 const grid = createGrid(40, 40, ground.position)
 scene.add(grid);
 
-// Добавим невидимый box-коллайдер для ground (толщина 0.5, верх на уровне плоскости)
+// Добавим невидимый box-коллайдер для ground (толщина 2.0, верх на уровне плоскости)
 const groundCollider = new THREE.Mesh(
-    new THREE.BoxGeometry(40, 0.5, 40),
+    new THREE.BoxGeometry(40, 2.0, 40),
     new THREE.MeshBasicMaterial({ visible: false })
 );
-groundCollider.position.set(0, ground.position.y - 0.25, 0);
+// Центр на 1.0 ниже верхней поверхности, чтобы верх совпадал с плоскостью ground
+groundCollider.position.set(0, ground.position.y - 1.0, 0);
 scene.add(groundCollider);
 
 // === Физика (Oimo.js helper) ===
