@@ -44,13 +44,8 @@ function animate() {
 
     // обновляем текст
     info.innerHTML = getDataTextBlock(cube.position, cube.rotation);
-    posX.value = cube.position.x.toFixed(2);
-    posY.value = cube.position.y.toFixed(2);
-    posZ.value = cube.position.z.toFixed(2);
-
-    rotX.value = radToDeg(cube.rotation.x % Math.PI).toFixed(1);
-    rotY.value = radToDeg(cube.rotation.y % Math.PI).toFixed(1);
-    rotZ.value = radToDeg(cube.rotation.z % Math.PI).toFixed(1);
+    cube.grabPositionTo(posX, posY, posZ);
+    cube.grabRotationTo(rotX, rotY, rotZ);
 
     renderer.render(scene, camera);
 }
@@ -80,13 +75,8 @@ const rotZOText = panel.querySelector('#rotZOut') as HTMLElement;
 
 // Инициализация значениями из куба
 function syncUIFromCube() {
-    posX.value = cube.position.x.toFixed(2);
-    posY.value = cube.position.y.toFixed(2);
-    posZ.value = cube.position.z.toFixed(2);
-
-    rotX.value = radToDeg(cube.rotation.x).toFixed(1);
-    rotY.value = radToDeg(cube.rotation.y).toFixed(1);
-    rotZ.value = radToDeg(cube.rotation.z).toFixed(1);
+    cube.grabPositionTo(posX, posY, posZ);
+    cube.grabRotationTo(rotX, rotY, rotZ);
 
     posXOText.textContent = posX.value;
     posYOText.textContent = posY.value;
