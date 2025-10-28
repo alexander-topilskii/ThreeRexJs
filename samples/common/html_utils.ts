@@ -1,10 +1,10 @@
 import {Euler, Vector3} from "three";
 import * as THREE from "three";
-import {degToRad} from "./ui_utils";
+import {degToRad, radToDeg} from "./ui_utils";
 
 export function getDataTextBlock(cubePosition: Vector3, cubeRotation: Euler): string {
     return `pos: x=${cubePosition.x.toFixed(2)}, y=${cubePosition.y.toFixed(2)}, z=${cubePosition.z.toFixed(2)}<br>` +
-        `rot: x=${cubeRotation.x.toFixed(2)}, y=${cubeRotation.y.toFixed(2)}, z=${cubeRotation.z.toFixed(2)}`;
+        `rot: x=${radToDeg(cubeRotation.x % Math.PI).toFixed(2)}, y=${radToDeg(cubeRotation.y % Math.PI).toFixed(2)}, z=${radToDeg(cubeRotation.z % Math.PI).toFixed(2)}`;
 }
 
 export function getInfoBlock() {
@@ -24,21 +24,21 @@ export function updateCubePositionText(
     panel: HTMLDivElement,
     position: THREE.Vector3,
 ) {
-    const { x, y, z } = panel.positions;
+    const {x, y, z} = panel.positions;
     position.x = parseFloat(x.value);
     position.y = parseFloat(y.value);
     position.z = parseFloat(z.value);
-    panel.updatePositions?.(x, y, z);
+    panel.updatePositions(panel.positions);
 }
 
 export function updateCubeRotationText(
     panel: HTMLDivElement,
     rotation: THREE.Euler,
 ) {
-    const { x, y, z } = panel.rotations;
+    const {x, y, z} = panel.rotations;
     rotation.x = degToRad(parseFloat(x.value));
     rotation.y = degToRad(parseFloat(y.value));
     rotation.z = degToRad(parseFloat(z.value));
 
-    panel.updateRotation?.(x, y, z);
+    panel.updateRotation?.(panel.rotations);
 }

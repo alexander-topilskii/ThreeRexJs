@@ -38,10 +38,7 @@ function animate() {
 
     // обновляем текст
     info.innerHTML = getDataTextBlock(cube.position, cube.rotation);
-    cube.grabPositionTo(panel.positions);
-    cube.grabRotationTo(panel.rotations);
-    panel.updatePositions(panel.positions.x, panel.positions.y, panel.positions.z);
-    panel.updateRotation(panel.rotations.x, panel.rotations.y, panel.rotations.z);
+    syncUIFromCube();
 
     renderer.render(scene, camera);
 }
@@ -59,8 +56,8 @@ window.addEventListener('resize', () => {
 function syncUIFromCube() {
     cube.grabPositionTo(panel.positions);
     cube.grabRotationTo(panel.rotations);
-    panel.updatePositions?.(panel.positions.x, panel.positions.y, panel.positions.z);
-    panel.updateRotation?.(panel.rotations.x, panel.rotations.y, panel.rotations.z);
+    panel.updatePositions(panel.positions);
+    panel.updateRotation(panel.rotations);
 }
 
 syncUIFromCube();

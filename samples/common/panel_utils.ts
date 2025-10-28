@@ -3,8 +3,8 @@ export type Slider = HTMLInputElement;
 // Add methods to HTMLDivElement via declaration merging so panel can expose helpers
 declare global {
     interface HTMLDivElement {
-        updatePositions: (posX: Slider, posY: Slider, posZ: Slider) => void;
-        updateRotation: (rotX: Slider, rotY: Slider, rotZ: Slider) => void;
+        updatePositions: ( targets: { x: { value: string | number }; y: { value: string | number }; z: { value: string | number } }) => void;
+        updateRotation: (targets: { x: { value: string | number }; y: { value: string | number }; z: { value: string | number } }) => void;
         positions: { x: Slider; y: Slider; z: Slider };
         rotations: { x: Slider; y: Slider; z: Slider };
     }
@@ -104,22 +104,22 @@ export function createTransformPanel(): HTMLDivElement {
     panel.rotations = { x: rotX, y: rotY, z: rotZ };
 
     // Attach update helpers to panel instance
-    panel.updatePositions = (posX: Slider, posY: Slider, posZ: Slider) => {
+    panel.updatePositions = ( targets: { x: { value: string | number }; y: { value: string | number }; z: { value: string | number } }) => {
         const ox = panel.querySelector('#posXOut') as HTMLElement | null;
         const oy = panel.querySelector('#posYOut') as HTMLElement | null;
         const oz = panel.querySelector('#posZOut') as HTMLElement | null;
-        if (ox) ox.textContent = posX.value;
-        if (oy) oy.textContent = posY.value;
-        if (oz) oz.textContent = posZ.value;
+        if (ox) ox.textContent = targets.x.value as string;
+        if (oy) oy.textContent = targets.y.value as string;
+        if (oz) oz.textContent = targets.z.value as string;
     };
 
-    panel.updateRotation = (rotX: Slider, rotY: Slider, rotZ: Slider) => {
+    panel.updateRotation = (targets: { x: { value: string | number }; y: { value: string | number }; z: { value: string | number } }) => {
         const ox = panel.querySelector('#rotXOut') as HTMLElement | null;
         const oy = panel.querySelector('#rotYOut') as HTMLElement | null;
         const oz = panel.querySelector('#rotZOut') as HTMLElement | null;
-        if (ox) ox.textContent = rotX.value;
-        if (oy) oy.textContent = rotY.value;
-        if (oz) oz.textContent = rotZ.value;
+        if (ox) ox.textContent = targets.x.value as string;
+        if (oy) oy.textContent = targets.y.value as string;
+        if (oz) oz.textContent = targets.z.value as string;
     };
 
     document.body.appendChild(panel);
