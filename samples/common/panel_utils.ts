@@ -31,7 +31,7 @@ export function createTransformPanel(): HTMLDivElement {
     panel.innerHTML = `
     <div style="font-weight:600; margin-bottom:6px;">Controls</div>
     <label style="display:flex;align-items:center;gap:8px;margin:6px 0;">
-      <input id="autoRotate" type="checkbox" checked />
+      <input id="auto" type="checkbox" checked />
       <span>Auto-rotate</span>
     </label>
     <hr style="border:none;border-top:1px solid rgba(255,255,255,0.1); margin:8px 0;">

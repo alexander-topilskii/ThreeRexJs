@@ -6,6 +6,7 @@ import {
     updateCubeRotationText
 } from '../../../common/html_utils';
 import {createCube, getPerspectiveCamera} from '../../../common/three_utils';
+import { OimoPhysics } from '../../../common/physics/OimoPhysics';
 import {createTransformPanel} from '../../../common/panel_utils';
 import {createGradientPlane, createGrid} from "../../../common/plane_helpers";
 import {createPlayerController} from '../../../common/player_utils';
@@ -34,10 +35,26 @@ scene.add(ground);
 const grid = createGrid(40, 40, ground.position)
 scene.add(grid);
 
+// Добавим невидимый box-коллайдер для ground (толщина 0.5, верх на уровне плоскости)
+const groundCollider = new THREE.Mesh(
+    new THREE.BoxGeometry(40, 0.5, 40),
+    new THREE.MeshBasicMaterial({ visible: false })
+);
+groundCollider.position.set(0, ground.position.y - 0.25, 0);
+scene.add(groundCollider);
+
+// === Физика (Oimo.js helper) ===
+const physics = await OimoPhysics();
+// ground — статический (mass = 0)
+physics.addMesh(groundCollider, 0);
+// cube — динамический (mass = 1)
+physics.addMesh(cube, 1);
+
 
 // === Overlay для текста ===
 const info = getInfoBlock()
 const panel = createTransformPanel();
+const auto = panel.querySelector('#auto') as HTMLInputElement;
 
 document.body.appendChild(info);
 
@@ -52,6 +69,10 @@ function animate() {
     // Обновляем контроллер камеры
     controller.update(dt);
 
+    // Шаг физики только когда включен auto
+    if (auto.checked && physics) {
+        try { physics.step?.(dt); } catch { physics.step?.(); }
+    }
 
     // обновляем текст
     info.innerHTML = getDataTextBlock(cube.position, cube.rotation);

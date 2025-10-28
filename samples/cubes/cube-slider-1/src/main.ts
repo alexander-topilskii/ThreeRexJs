@@ -23,7 +23,7 @@ scene.add(cube);
 // === Overlay для текста ===
 const info = getInfoBlock()
 const panel = createTransformPanel();
-const autoRotate = panel.querySelector('#autoRotate') as HTMLInputElement;
+const autoRotate = panel.querySelector('#auto') as HTMLInputElement;
 
 document.body.appendChild(info);
 

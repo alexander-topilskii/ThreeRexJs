@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import {Mesh} from "three";
+import {Mesh, Vector3} from "three";
 import {radToDeg} from "./ui_utils";
 
 export function getPerspectiveCamera(positionZ: number = 3) {
@@ -15,10 +15,15 @@ export function getPerspectiveCamera(positionZ: number = 3) {
     return camera;
 }
 
-export function createCube(): Mesh {
+export function createCube(position: Vector3 = new Vector3(0, 3, 0)): Mesh {
     const geometry = new THREE.BoxGeometry();
     const material = new THREE.MeshNormalMaterial();
-    return new THREE.Mesh(geometry, material);
+    const cube = new THREE.Mesh(geometry, material);
+    cube.position.x = position.x;
+    cube.position.y = position.y;
+    cube.position.z = position.z;
+
+    return cube;
 }
 
 

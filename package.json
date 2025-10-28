@@ -16,6 +16,7 @@
     "preview": "vite preview --strictPort"
   },
   "dependencies": {
+    "oimo": "^1.0.9",
     "stats.js": "^0.17.0",
     "three": "^0.169.0"
   },
