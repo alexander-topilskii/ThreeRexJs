@@ -38,7 +38,6 @@ scene.add(grid);
 // === Overlay для текста ===
 const info = getInfoBlock()
 const panel = createTransformPanel();
-const autoRotate = panel.querySelector('#autoRotate') as HTMLInputElement;
 
 document.body.appendChild(info);
 
@@ -53,10 +52,6 @@ function animate() {
     // Обновляем контроллер камеры
     controller.update(dt);
 
-    if (autoRotate.checked) {
-        cube.rotation.x += 0.01;
-        cube.rotation.y += 0.01;
-    }
 
     // обновляем текст
     info.innerHTML = getDataTextBlock(cube.position, cube.rotation);
