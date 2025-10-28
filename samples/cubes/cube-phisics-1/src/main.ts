@@ -31,73 +31,76 @@ const controller = createPlayerController(camera, renderer.domElement, {
     initialPitch: -0.35,
 });
 
-// === Физика ===
-const physics = await OimoPhysics();
+// Оборачиваем в async функцию для избежания top-level await
+(async () => {
+    // === Физика ===
+    const physics = await OimoPhysics();
 
-// === Игровой мир ===
-const world = new GameWorld(scene, physics, {
-    groundSize: GROUND_SIZE,
-    wallHeight: WALL_HEIGHT,
-    wallThickness: 2.0,
-    goalPosition: { x: -10, y: 0, z: -10 }
-});
+    // === Игровой мир ===
+    const world = new GameWorld(scene, physics, {
+        groundSize: GROUND_SIZE,
+        wallHeight: WALL_HEIGHT,
+        wallThickness: 2.0,
+        goalPosition: { x: -10, y: 0, z: -10 }
+    });
 
-// === Игрок ===
-const player = new Player(physics, {
-    position: { x: 5, y: 1, z: 5 },
-    speed: 5,
-    jumpForce: 8
-});
-scene.add(player.mesh);
+    // === Игрок ===
+    const player = new Player(physics, {
+        position: { x: 5, y: 1, z: 5 },
+        speed: 5,
+        jumpForce: 8
+    });
+    scene.add(player.mesh);
 
-// === Эффекты ===
-const confetti = new ConfettiSystem(scene);
+    // === Эффекты ===
+    const confetti = new ConfettiSystem(scene);
 
-// === UI ===
-const controlPanel = new ControlPanel(player, {
-    onCommand: (cmd) => console.log('Команда:', cmd)
-});
-controlPanel.mount();
+    // === UI ===
+    const controlPanel = new ControlPanel(player, {
+        onCommand: (cmd) => console.log('Команда:', cmd)
+    });
+    controlPanel.mount();
 
-const info = getInfoBlock();
-const panel = createTransformPanel();
-const auto = panel.querySelector('#auto') as HTMLInputElement;
-document.body.appendChild(info);
+    const info = getInfoBlock();
+    const panel = createTransformPanel();
+    const auto = panel.querySelector('#auto') as HTMLInputElement;
+    document.body.appendChild(info);
 
-// === Менеджеры ===
-const statusManager = new GameStatusManager(player, controlPanel, world, confetti, PICKUP_DISTANCE);
-const cubeUISync = new CubeUISync(world.cube, panel, physics);
+    // === Менеджеры ===
+    const statusManager = new GameStatusManager(player, controlPanel, world, confetti, PICKUP_DISTANCE);
+    const cubeUISync = new CubeUISync(world.cube, panel, physics);
 
-// === Игровой цикл ===
-const gameLoop = new GameLoop({
-    controller,
-    player,
-    physics,
-    confetti,
-    statusManager,
-    cubeUISync,
-    autoCheckbox: auto,
-    infoElement: info,
-    cube: world.cube,
-    getDataTextBlock
-});
+    // === Игровой цикл ===
+    const gameLoop = new GameLoop({
+        controller,
+        player,
+        physics,
+        confetti,
+        statusManager,
+        cubeUISync,
+        autoCheckbox: auto,
+        infoElement: info,
+        cube: world.cube,
+        getDataTextBlock
+    });
 
-gameLoop.start();
+    gameLoop.start();
 
-// === Обработчики событий ===
-window.addEventListener('beforeunload', () => {
-    controller.dispose();
-    player.dispose();
-    controlPanel.dispose();
-    confetti.clear();
-    gameLoop.stop();
-});
+    // === Обработчики событий ===
+    window.addEventListener('beforeunload', () => {
+        controller.dispose();
+        player.dispose();
+        controlPanel.dispose();
+        confetti.clear();
+        gameLoop.stop();
+    });
 
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+})();
 
 // Добавляем рендеринг в игровой цикл
 (function render() {
