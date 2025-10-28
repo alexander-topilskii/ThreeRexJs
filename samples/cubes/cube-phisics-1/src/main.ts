@@ -44,10 +44,45 @@ const groundCollider = new THREE.Mesh(
 groundCollider.position.set(0, ground.position.y - 1.0, 0);
 scene.add(groundCollider);
 
+// Добавим стенки по краям (полупрозрачные)
+const wallMaterial = new THREE.MeshBasicMaterial({
+    color: 0x4488ff,
+    transparent: true,
+    opacity: 0.3
+});
+const wallHeight = 2;
+const wallThickness = 0.5;
+const groundSize = 40;
+
+// Северная стенка
+const wallNorth = new THREE.Mesh(new THREE.BoxGeometry(groundSize, wallHeight, wallThickness), wallMaterial);
+wallNorth.position.set(0, wallHeight / 2, -groundSize / 2);
+scene.add(wallNorth);
+
+// Южная стенка
+const wallSouth = new THREE.Mesh(new THREE.BoxGeometry(groundSize, wallHeight, wallThickness), wallMaterial);
+wallSouth.position.set(0, wallHeight / 2, groundSize / 2);
+scene.add(wallSouth);
+
+// Западная стенка
+const wallWest = new THREE.Mesh(new THREE.BoxGeometry(wallThickness, wallHeight, groundSize), wallMaterial);
+wallWest.position.set(-groundSize / 2, wallHeight / 2, 0);
+scene.add(wallWest);
+
+// Восточная стенка
+const wallEast = new THREE.Mesh(new THREE.BoxGeometry(wallThickness, wallHeight, groundSize), wallMaterial);
+wallEast.position.set(groundSize / 2, wallHeight / 2, 0);
+scene.add(wallEast);
+
 // === Физика (Oimo.js helper) ===
 const physics = await OimoPhysics();
 // ground — статический (mass = 0)
 physics.addMesh(groundCollider, 0);
+// стенки — статические
+physics.addMesh(wallNorth, 0);
+physics.addMesh(wallSouth, 0);
+physics.addMesh(wallWest, 0);
+physics.addMesh(wallEast, 0);
 // cube — динамический (mass = 1)
 physics.addMesh(cube, 1);
 

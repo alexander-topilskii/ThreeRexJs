@@ -81,9 +81,9 @@ export function createTransformPanel(): HTMLDivElement {
     }
 
     (panel.querySelector('#posRows') as HTMLElement).append(
-        row('x', 'posX', -5, 5, 0.01),
-        row('y', 'posY', -5, 5, 0.01),
-        row('z', 'posZ', -5, 5, 0.01),
+        row('x', 'posX', -30, 30, 0.01),
+        row('y', 'posY', -30, 30, 0.01),
+        row('z', 'posZ', -30, 30, 0.01),
     );
 
     (panel.querySelector('#rotRows') as HTMLElement).append(
