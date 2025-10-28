@@ -95,18 +95,137 @@ const player = new Player(physics, {
 });
 scene.add(player.mesh);
 
-// Управление режимами (Shift для переключения)
-let playerMode = false;
-window.addEventListener('keydown', (e) => {
-    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-        playerMode = true;
-        controller.enabled = false;
+// === Панель управления роботом ===
+const controlPanel = document.createElement('div');
+controlPanel.style.cssText = `
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    color: white;
+    font-family: monospace;
+    z-index: 1000;
+    resize: vertical;
+    overflow: auto;
+    min-height: 100px;
+    max-height: 50vh;
+`;
+
+// Контейнер для поля ввода и кнопки отправки
+const inputContainer = document.createElement('div');
+inputContainer.style.cssText = `
+    display: flex;
+    gap: 5px;
+    flex: 1;
+`;
+
+// Поле ввода
+const inputField = document.createElement('input');
+inputField.type = 'text';
+inputField.placeholder = 'Введите команду...';
+inputField.style.cssText = `
+    padding: 10px;
+    font-size: 14px;
+    font-family: monospace;
+    flex: 1;
+    border: none;
+    border-radius: 4px;
+`;
+
+// Кнопка отправить
+const btnSend = document.createElement('button');
+btnSend.textContent = '📤';
+btnSend.style.cssText = `
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    cursor: pointer;
+    background: #4488ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`;
+btnSend.addEventListener('click', () => {
+    const command = inputField.value.trim();
+    if (command) {
+        outputText.textContent = `Команда: ${command}`;
+        inputField.value = '';
     }
 });
-window.addEventListener('keyup', (e) => {
-    if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-        playerMode = false;
-        controller.enabled = true;
+
+inputContainer.appendChild(inputField);
+inputContainer.appendChild(btnSend);
+
+// Контейнер для кнопок
+const buttonsContainer = document.createElement('div');
+buttonsContainer.style.cssText = `
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+`;
+
+// Создаем кнопки
+const createButton = (text: string, onClick: () => void) => {
+    const btn = document.createElement('button');
+    btn.textContent = text;
+    btn.style.cssText = `
+        padding: 10px 15px;
+        font-size: 14px;
+        font-family: monospace;
+        cursor: pointer;
+        background: #4488ff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+    `;
+    btn.addEventListener('mousedown', onClick);
+    return btn;
+};
+
+const btnLeft = createButton('← Влево', () => player.moveLeft(0.1));
+const btnRight = createButton('Вправо →', () => player.moveRight(0.1));
+const btnForward = createButton('↑ Вперед', () => player.moveForward(0.1));
+const btnBackward = createButton('↓ Назад', () => player.moveBackward(0.1));
+const btnJump = createButton('Прыгнуть', () => player.jump());
+const btnPickup = createButton('Взять', () => player.togglePickup());
+
+buttonsContainer.appendChild(btnLeft);
+buttonsContainer.appendChild(btnRight);
+buttonsContainer.appendChild(btnForward);
+buttonsContainer.appendChild(btnBackward);
+buttonsContainer.appendChild(btnJump);
+buttonsContainer.appendChild(btnPickup);
+
+// Вывод текста
+const outputText = document.createElement('div');
+outputText.style.cssText = `
+    flex: 1;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    font-size: 14px;
+    min-height: 40px;
+    overflow-y: auto;
+`;
+outputText.textContent = 'Готов к командам...';
+
+controlPanel.appendChild(inputContainer);
+controlPanel.appendChild(buttonsContainer);
+controlPanel.appendChild(outputText);
+document.body.appendChild(controlPanel);
+
+// Обработка Enter для отправки команды
+inputField.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        btnSend.click();
     }
 });
 
@@ -126,22 +245,24 @@ function animate() {
     const dt = (now - prevTime) / 1000;
     prevTime = now;
 
-    // Обновляем контроллер камеры (только если не в режиме игрока)
-    if (!playerMode) {
-        controller.update(dt);
-    }
+    // Обновляем контроллер камеры
+    controller.update(dt);
 
-    // Обновляем игрока (только в режиме игрока)
-    if (playerMode) {
-        player.update(dt, camera);
-    }
+    // Обновляем игрока
+    player.update(dt);
 
     // Проверяем близость к кубу для подбора
     const distToCube = player.getPosition().distanceTo(cube.position);
     if (distToCube < 3) {
         player.setNearbyPickupTarget(cube);
+        outputText.textContent = `Рядом с кубом (дистанция: ${distToCube.toFixed(2)}). Нажмите "Взять"`;
     } else {
         player.setNearbyPickupTarget(null);
+        if (player.isCarrying) {
+            outputText.textContent = 'Несу куб...';
+        } else {
+            outputText.textContent = `Позиция робота: x=${player.getPosition().x.toFixed(1)}, y=${player.getPosition().y.toFixed(1)}, z=${player.getPosition().z.toFixed(1)}`;
+        }
     }
 
     // Шаг физики только когда включен auto

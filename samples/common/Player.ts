@@ -17,20 +17,11 @@ export class Player {
     private speed: number;
     private jumpForce: number;
     private isGrounded: boolean = false;
-    private moveDirection: THREE.Vector3 = new THREE.Vector3();
-
-    // Состояние клавиш
-    private keys = {
-        forward: false,
-        backward: false,
-        left: false,
-        right: false,
-        jump: false
-    };
 
     // Система переноса кубов
     private carriedObject: THREE.Object3D | null = null;
     private carryOffset: THREE.Vector3 = new THREE.Vector3(0, 0, -2);
+    public isCarrying: boolean = false;
 
     constructor(physics: OimoHelper, options: PlayerOptions = {}) {
         this.physics = physics;
@@ -54,108 +45,65 @@ export class Player {
 
         // Добавляем в физику (масса = 1)
         this.physics.addMesh(this.mesh, 1);
-
-        // Биндим обработчики
-        this.handleKeyDown = this.handleKeyDown.bind(this);
-        this.handleKeyUp = this.handleKeyUp.bind(this);
-
-        window.addEventListener('keydown', this.handleKeyDown);
-        window.addEventListener('keyup', this.handleKeyUp);
     }
 
-    private handleKeyDown(e: KeyboardEvent) {
-        switch (e.code) {
-            case 'KeyW': this.keys.forward = true; break;
-            case 'KeyS': this.keys.backward = true; break;
-            case 'KeyA': this.keys.left = true; break;
-            case 'KeyD': this.keys.right = true; break;
-            case 'Space': this.keys.jump = true; break;
-            case 'KeyE': this.tryPickupOrDrop(); break;
+    // Движение в абсолютных направлениях (без учета камеры)
+    moveForward(dt: number) {
+        this.mesh.position.z -= this.speed * dt;
+        this.physics.updateMesh?.(this.mesh);
+    }
+
+    moveBackward(dt: number) {
+        this.mesh.position.z += this.speed * dt;
+        this.physics.updateMesh?.(this.mesh);
+    }
+
+    moveLeft(dt: number) {
+        this.mesh.position.x -= this.speed * dt;
+        this.physics.updateMesh?.(this.mesh);
+    }
+
+    moveRight(dt: number) {
+        this.mesh.position.x += this.speed * dt;
+        this.physics.updateMesh?.(this.mesh);
+    }
+
+    jump() {
+        if (this.isGrounded) {
+            this.mesh.position.y += 0.5;
+            this.physics.updateMesh?.(this.mesh);
         }
     }
 
-    private handleKeyUp(e: KeyboardEvent) {
-        switch (e.code) {
-            case 'KeyW': this.keys.forward = false; break;
-            case 'KeyS': this.keys.backward = false; break;
-            case 'KeyA': this.keys.left = false; break;
-            case 'KeyD': this.keys.right = false; break;
-            case 'Space': this.keys.jump = false; break;
-        }
-    }
-
-    private tryPickupOrDrop() {
-        if (this.carriedObject) {
+    togglePickup() {
+        if (this.isCarrying) {
             // Бросить объект
-            this.dropObject();
+            if (this.carriedObject) {
+                (this.carriedObject as any).isCarried = false;
+                this.carriedObject = null;
+                this.isCarrying = false;
+            }
         } else {
             // Попытаться взять объект
-            this.pickupObject();
+            if ((this.mesh as any).nearbyPickupTarget) {
+                this.carriedObject = (this.mesh as any).nearbyPickupTarget;
+                (this.carriedObject as any).isCarried = true;
+                this.isCarrying = true;
+            }
         }
     }
 
-    private pickupObject() {
-        // Ищем объект перед игроком (простая проверка по расстоянию)
-        // В реальном проекте здесь был бы raycast
-        // Для простоты будем искать объекты с тегом, который добавим позже
-        if ((this.mesh as any).nearbyPickupTarget) {
-            this.carriedObject = (this.mesh as any).nearbyPickupTarget;
-            (this.carriedObject as any).isCarried = true;
-        }
-    }
-
-    private dropObject() {
-        if (this.carriedObject) {
-            (this.carriedObject as any).isCarried = false;
-            this.carriedObject = null;
-        }
-    }
-
-    update(dt: number, camera: THREE.Camera) {
-        // Вычисляем направление движения относительно камеры
-        this.moveDirection.set(0, 0, 0);
-
-        const forward = new THREE.Vector3();
-        camera.getWorldDirection(forward);
-        forward.y = 0; // Игнорируем вертикальную составляющую
-        forward.normalize();
-
-        const right = new THREE.Vector3();
-        right.crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
-
-        if (this.keys.forward) this.moveDirection.add(forward);
-        if (this.keys.backward) this.moveDirection.sub(forward);
-        if (this.keys.left) this.moveDirection.sub(right);
-        if (this.keys.right) this.moveDirection.add(right);
-
-        this.moveDirection.normalize();
-
-        // Применяем движение через физику
-        if (this.moveDirection.length() > 0) {
-            const targetVel = this.moveDirection.multiplyScalar(this.speed);
-            this.mesh.position.add(targetVel.multiplyScalar(dt));
-            this.physics.updateMesh?.(this.mesh);
-        }
-
-        // Прыжок
-        if (this.keys.jump && this.isGrounded) {
-            // Применяем импульс вверх
-            this.mesh.position.y += 0.1;
-            this.physics.updateMesh?.(this.mesh);
-            this.keys.jump = false; // Один прыжок за нажатие
-        }
-
+    update(dt: number) {
         // Проверка на земле (упрощенная - проверяем высоту)
         this.isGrounded = this.mesh.position.y <= this.size.height / 2 + 0.1;
 
         // Обновляем позицию переносимого объекта
         if (this.carriedObject) {
-            const carryPos = new THREE.Vector3();
-            camera.getWorldDirection(carryPos);
-            carryPos.multiplyScalar(this.carryOffset.z);
-            carryPos.add(this.mesh.position);
-            carryPos.y = this.mesh.position.y + this.carryOffset.y;
-
+            const carryPos = new THREE.Vector3(
+                this.mesh.position.x,
+                this.mesh.position.y + this.carryOffset.y,
+                this.mesh.position.z + this.carryOffset.z
+            );
             this.carriedObject.position.copy(carryPos);
             this.physics.updateMesh?.(this.carriedObject);
         }
@@ -170,7 +118,6 @@ export class Player {
     }
 
     dispose() {
-        window.removeEventListener('keydown', this.handleKeyDown);
-        window.removeEventListener('keyup', this.handleKeyUp);
+        // Убираем обработчики клавиш
     }
 }
