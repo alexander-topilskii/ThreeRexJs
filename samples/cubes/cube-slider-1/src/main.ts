@@ -74,4 +74,4 @@ syncUIFromCube();
     s.addEventListener('input', () => {
         updateCubeRotationText(panel, cube.rotation);
     });
-});
+});//d
