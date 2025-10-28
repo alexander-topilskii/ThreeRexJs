@@ -6,7 +6,7 @@ import {
     updateCubeRotationText
 } from '../../../common/html_utils';
 import {createCube, getPerspectiveCamera} from '../../../common/three_utils';
-import {createTransformPanel, Slider} from '../../../common/panel_utils';
+import {createTransformPanel} from '../../../common/panel_utils';
 
 // === Сцена ===
 const scene = new THREE.Scene();
@@ -24,12 +24,6 @@ scene.add(cube);
 const info = getInfoBlock()
 const panel = createTransformPanel();
 const autoRotate = panel.querySelector('#autoRotate') as HTMLInputElement;
-const posX = panel.querySelector('#posX') as Slider;
-const posY = panel.querySelector('#posY') as Slider;
-const posZ = panel.querySelector('#posZ') as Slider;
-const rotX = panel.querySelector('#rotX') as Slider;
-const rotY = panel.querySelector('#rotY') as Slider;
-const rotZ = panel.querySelector('#rotZ') as Slider;
 
 document.body.appendChild(info);
 
@@ -44,8 +38,10 @@ function animate() {
 
     // обновляем текст
     info.innerHTML = getDataTextBlock(cube.position, cube.rotation);
-    cube.grabPositionTo(posX, posY, posZ);
-    cube.grabRotationTo(rotX, rotY, rotZ);
+    cube.grabPositionTo(panel.positions);
+    cube.grabRotationTo(panel.rotations);
+    panel.updatePositions(panel.positions.x, panel.positions.y, panel.positions.z);
+    panel.updateRotation(panel.rotations.x, panel.rotations.y, panel.rotations.z);
 
     renderer.render(scene, camera);
 }
@@ -59,39 +55,26 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// Указатели на элементы
-const posXOText = panel.querySelector('#posXOut') as HTMLElement;
-const posYOText = panel.querySelector('#posYOut') as HTMLElement;
-const posZOText = panel.querySelector('#posZOut') as HTMLElement;
-const rotXOText = panel.querySelector('#rotXOut') as HTMLElement;
-const rotYOText = panel.querySelector('#rotYOut') as HTMLElement;
-const rotZOText = panel.querySelector('#rotZOut') as HTMLElement;
-
 // Инициализация значениями из куба
 function syncUIFromCube() {
-    cube.grabPositionTo(posX, posY, posZ);
-    cube.grabRotationTo(rotX, rotY, rotZ);
-
-    posXOText.textContent = posX.value;
-    posYOText.textContent = posY.value;
-    posZOText.textContent = posZ.value;
-    rotXOText.textContent = rotX.value;
-    rotYOText.textContent = rotY.value;
-    rotZOText.textContent = rotZ.value;
+    cube.grabPositionTo(panel.positions);
+    cube.grabRotationTo(panel.rotations);
+    panel.updatePositions?.(panel.positions.x, panel.positions.y, panel.positions.z);
+    panel.updateRotation?.(panel.rotations.x, panel.rotations.y, panel.rotations.z);
 }
 
 syncUIFromCube();
 
 // Обработчики: UI -> куб
-[posX, posY, posZ].forEach((s) => {
+[panel.positions.x, panel.positions.y, panel.positions.z].forEach((s) => {
     s.addEventListener('input', () => {
-        updateCubePositionText(posX, posY, posZ, cube.position, posXOText, posYOText, posZOText);
+        updateCubePositionText(panel, cube.position);
     });
 });
 
 
-[rotX, rotY, rotZ].forEach((s) => {
+[panel.rotations.x, panel.rotations.y, panel.rotations.z].forEach((s) => {
     s.addEventListener('input', () => {
-        updateCubeRotationText(rotX, rotY, rotZ, cube.rotation, rotXOText, rotYOText, rotZOText);
+        updateCubeRotationText(panel, cube.rotation);
     });
 });

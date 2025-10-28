@@ -20,40 +20,25 @@ export function getInfoBlock() {
     return info
 }
 
-
-
 export function updateCubePositionText(
-    posX: HTMLInputElement,
-    posY: HTMLInputElement,
-    posZ: HTMLInputElement,
+    panel: HTMLDivElement,
     position: THREE.Vector3,
-    posXOText: HTMLElement,
-    posYOText: HTMLElement,
-    posZOText: HTMLElement
 ) {
-    position.x = parseFloat(posX.value);
-    position.y = parseFloat(posY.value);
-    position.z = parseFloat(posZ.value);
-    posXOText.textContent = posX.value;
-    posYOText.textContent = posY.value;
-    posZOText.textContent = posZ.value;
+    const { x, y, z } = panel.positions;
+    position.x = parseFloat(x.value);
+    position.y = parseFloat(y.value);
+    position.z = parseFloat(z.value);
+    panel.updatePositions?.(x, y, z);
 }
 
-
 export function updateCubeRotationText(
-    rotX: HTMLInputElement,
-    rotY: HTMLInputElement,
-    rotZ: HTMLInputElement,
+    panel: HTMLDivElement,
     rotation: THREE.Euler,
-    rotXOText: HTMLElement,
-    rotYOText: HTMLElement,
-    rotZOText: HTMLElement
 ) {
-    rotation.x = degToRad(parseFloat(rotX.value));
-    rotation.y = degToRad(parseFloat(rotY.value));
-    rotation.z = degToRad(parseFloat(rotZ.value));
+    const { x, y, z } = panel.rotations;
+    rotation.x = degToRad(parseFloat(x.value));
+    rotation.y = degToRad(parseFloat(y.value));
+    rotation.z = degToRad(parseFloat(z.value));
 
-    rotXOText.textContent = rotX.value;
-    rotYOText.textContent = rotY.value;
-    rotZOText.textContent = rotZ.value;
+    panel.updateRotation?.(x, y, z);
 }

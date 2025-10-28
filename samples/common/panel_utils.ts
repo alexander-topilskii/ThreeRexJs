@@ -1,7 +1,14 @@
-
-
-
 export type Slider = HTMLInputElement;
+
+// Add methods to HTMLDivElement via declaration merging so panel can expose helpers
+declare global {
+    interface HTMLDivElement {
+        updatePositions: (posX: Slider, posY: Slider, posZ: Slider) => void;
+        updateRotation: (rotX: Slider, rotY: Slider, rotZ: Slider) => void;
+        positions: { x: Slider; y: Slider; z: Slider };
+        rotations: { x: Slider; y: Slider; z: Slider };
+    }
+}
 
 // Panel with sliders to control position and rotation
 // Returns the created panel element. It appends itself to document.body like the in-sample version.
@@ -33,6 +40,17 @@ export function createTransformPanel(): HTMLDivElement {
     <div style="font-weight:600; margin:10px 0 2px;">Rotation (deg)</div>
     <div id="rotRows"></div>
   `;
+
+
+    // Expose grouped slider references for convenient API
+    // Note: query inputs only AFTER rows are appended to the panel
+    let posX!: Slider;
+    let posY!: Slider;
+    let posZ!: Slider;
+    let rotX!: Slider;
+    let rotY!: Slider;
+    let rotZ!: Slider;
+
 
     function row(label: string, id: string, min: number, max: number, step: number): HTMLDivElement {
         const wrap = document.createElement('div');
@@ -73,6 +91,36 @@ export function createTransformPanel(): HTMLDivElement {
         row('y', 'rotY', -180, 180, 0.1),
         row('z', 'rotZ', -180, 180, 0.1),
     );
+
+    // Now that the rows are appended, query the inputs
+    posX = panel.querySelector('#posX') as Slider;
+    posY = panel.querySelector('#posY') as Slider;
+    posZ = panel.querySelector('#posZ') as Slider;
+    rotX = panel.querySelector('#rotX') as Slider;
+    rotY = panel.querySelector('#rotY') as Slider;
+    rotZ = panel.querySelector('#rotZ') as Slider;
+
+    panel.positions = { x: posX, y: posY, z: posZ };
+    panel.rotations = { x: rotX, y: rotY, z: rotZ };
+
+    // Attach update helpers to panel instance
+    panel.updatePositions = (posX: Slider, posY: Slider, posZ: Slider) => {
+        const ox = panel.querySelector('#posXOut') as HTMLElement | null;
+        const oy = panel.querySelector('#posYOut') as HTMLElement | null;
+        const oz = panel.querySelector('#posZOut') as HTMLElement | null;
+        if (ox) ox.textContent = posX.value;
+        if (oy) oy.textContent = posY.value;
+        if (oz) oz.textContent = posZ.value;
+    };
+
+    panel.updateRotation = (rotX: Slider, rotY: Slider, rotZ: Slider) => {
+        const ox = panel.querySelector('#rotXOut') as HTMLElement | null;
+        const oy = panel.querySelector('#rotYOut') as HTMLElement | null;
+        const oz = panel.querySelector('#rotZOut') as HTMLElement | null;
+        if (ox) ox.textContent = rotX.value;
+        if (oy) oy.textContent = rotY.value;
+        if (oz) oz.textContent = rotZ.value;
+    };
 
     document.body.appendChild(panel);
     return panel;
