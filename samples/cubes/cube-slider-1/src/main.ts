@@ -6,7 +6,7 @@ import {
     updateCubeRotationText
 } from '../../../common/html_utils';
 import {createCube, getPerspectiveCamera} from '../../../common/three_utils';
-import {createTransformPanel, degToRad, radToDeg, Slider} from '../../../common/ui_utils';
+import {createTransformPanel, Slider} from '../../../common/panel_utils';
 
 // === Сцена ===
 const scene = new THREE.Scene();
@@ -59,13 +59,7 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// === UI панель со слайдерами ===
-// вынесено в samples/common/ui_utils.ts: radToDeg, degToRad, Slider, createTransformPanel
-
-
 // Указатели на элементы
-
-
 const posXOText = panel.querySelector('#posXOut') as HTMLElement;
 const posYOText = panel.querySelector('#posYOut') as HTMLElement;
 const posZOText = panel.querySelector('#posZOut') as HTMLElement;
@@ -87,7 +81,6 @@ function syncUIFromCube() {
 }
 
 syncUIFromCube();
-
 
 // Обработчики: UI -> куб
 [posX, posY, posZ].forEach((s) => {
