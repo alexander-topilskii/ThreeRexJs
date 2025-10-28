@@ -12,13 +12,15 @@ import {createGradientPlane, createGrid} from "../../../common/plane_helpers";
 import {createPlayerController} from '../../../common/player_utils';
 import {Player} from '../../../common/Player';
 import {ControlPanel} from '../../../common/ui/ControlPanel';
-import {createWalls, createGroundCollider} from '../../../common/scene_setup';
+import {createWalls, createGroundCollider, createGoalSphere, isInsideSphere} from '../../../common/scene_setup';
 import {addStaticMeshes, addDynamicMesh, checkDistance} from '../../../common/physics_setup';
+import {ConfettiSystem} from '../../../common/effects/Confetti';
 
 // === Константы ===
 const GROUND_SIZE = 40;
 const WALL_HEIGHT = 2;
 const PICKUP_DISTANCE = 3;
+const CUBE_SIZE = 1; // Размер куба из createCube()
 
 // === Сцена ===
 const scene = new THREE.Scene();
@@ -50,11 +52,22 @@ scene.add(groundCollider);
 const walls = createWalls({
     size: GROUND_SIZE,
     height: WALL_HEIGHT,
-    thickness: 0.5,
+    thickness: 2.0,
     color: 0x4488ff,
-    opacity: 0.3
+    opacity: 0.3,
+    groundY: ground.position.y
 });
 walls.forEach(wall => scene.add(wall));
+
+// Сфера-цель (радиус = 2 ширины куба)
+const goalSphereRadius = CUBE_SIZE * 2;
+const goalSphere = createGoalSphere({
+    radius: goalSphereRadius,
+    position: { x: -10, y: ground.position.y, z: -10 },
+    color: 0xffff00,
+    opacity: 0.3
+});
+scene.add(goalSphere);
 
 // === Физика ===
 const physics = await OimoPhysics();
@@ -68,6 +81,9 @@ const player = new Player(physics, {
     jumpForce: 8
 });
 scene.add(player.mesh);
+
+// === Эффекты ===
+const confetti = new ConfettiSystem(scene);
 
 // === UI ===
 const controlPanel = new ControlPanel(player, {
@@ -106,26 +122,49 @@ syncUIFromCube();
 
 // === Игровой цикл ===
 let prevTime = performance.now();
+let gameWon = false;
 
 function updatePlayerStatus() {
     const distToCube = checkDistance(player.mesh, cube);
+    const cubePos = cube.position;
+    const spherePos = goalSphere.position;
 
-    if (distToCube < PICKUP_DISTANCE) {
-        player.setNearbyPickupTarget(cube);
-        controlPanel.setOutput(
-            `Рядом с кубом (дистанция: ${distToCube.toFixed(2)}). Нажмите "Взять"`
-        );
-    } else {
-        player.setNearbyPickupTarget(null);
-        if (player.isCarrying) {
-            controlPanel.setOutput('Несу куб...');
-        } else {
-            const pos = player.getPosition();
-            controlPanel.setOutput(
-                `Позиция робота: x=${pos.x.toFixed(1)}, y=${pos.y.toFixed(1)}, z=${pos.z.toFixed(1)}`
-            );
-        }
+    // Проверяем победу
+    if (!gameWon && isInsideSphere(cube, goalSphere, goalSphereRadius)) {
+        gameWon = true;
+        controlPanel.setOutput('🎉 ВЫ ПОБЕДИЛИ! 🎉');
+
+        // Запускаем конфетти из позиции сферы
+        confetti.burst(goalSphere.position.clone(), 150);
+        return;
     }
+
+    // Формируем вывод статуса
+    let output = '';
+
+    // Позиции объектов
+    output += `Куб: x=${cubePos.x.toFixed(1)}, y=${cubePos.y.toFixed(1)}, z=${cubePos.z.toFixed(1)}\n`;
+    output += `Сфера: x=${spherePos.x.toFixed(1)}, y=${spherePos.y.toFixed(1)}, z=${spherePos.z.toFixed(1)}\n`;
+
+    // Обновляем кнопку взять/отпустить
+    controlPanel.updatePickupButton(player.isCarrying);
+
+    // Статус робота
+    if (player.isCarrying) {
+        // Если держим куб
+        output += `Вы держите куб (дистанция: ${distToCube.toFixed(2)}). Нажмите "Отпустить"`;
+    } else if (distToCube < PICKUP_DISTANCE) {
+        // Если рядом с кубом
+        player.setNearbyPickupTarget(cube);
+        output += `Рядом с кубом (дистанция: ${distToCube.toFixed(2)}). Нажмите "Взять"`;
+    } else {
+        // Просто показываем позицию робота
+        player.setNearbyPickupTarget(null);
+        const pos = player.getPosition();
+        output += `Робот: x=${pos.x.toFixed(1)}, y=${pos.y.toFixed(1)}, z=${pos.z.toFixed(1)}`;
+    }
+
+    controlPanel.setOutput(output);
 }
 
 function animate() {
@@ -138,6 +177,9 @@ function animate() {
     controller.update(dt);
     player.update(dt);
     updatePlayerStatus();
+
+    // Обновляем систему конфетти
+    confetti.update(dt);
 
     if (auto.checked) {
         physics.step?.(dt);
@@ -156,6 +198,7 @@ window.addEventListener('beforeunload', () => {
     controller.dispose();
     player.dispose();
     controlPanel.dispose();
+    confetti.clear();
 });
 
 window.addEventListener('resize', () => {

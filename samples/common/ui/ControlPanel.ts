@@ -4,12 +4,25 @@ export interface ControlPanelOptions {
     onCommand?: (command: string) => void;
 }
 
+export type Command =
+    | { type: 'move_left' }
+    | { type: 'move_right' }
+    | { type: 'move_forward' }
+    | { type: 'move_backward' }
+    | { type: 'jump' }
+    | { type: 'pickup' };
+
 export class ControlPanel {
     element: HTMLDivElement;
     private inputField: HTMLInputElement;
     private outputText: HTMLDivElement;
+    private commandStackText: HTMLDivElement;
     private player: Player;
     private onCommand?: (command: string) => void;
+    private pickupButton: HTMLButtonElement | null = null;
+    private commandStack: Command[] = [];
+    private isExecuting: boolean = false;
+    private onRunCommands?: (commands: Command[]) => void;
 
     constructor(player: Player, options: ControlPanelOptions = {}) {
         this.player = player;
@@ -19,12 +32,14 @@ export class ControlPanel {
         this.element = this.createPanel();
         this.inputField = this.createInputField();
         this.outputText = this.createOutputText();
+        this.commandStackText = this.createCommandStackText();
 
         const inputContainer = this.createInputContainer();
         const buttonsContainer = this.createButtonsContainer();
 
         this.element.appendChild(inputContainer);
         this.element.appendChild(buttonsContainer);
+        this.element.appendChild(this.commandStackText);
         this.element.appendChild(this.outputText);
     }
 
@@ -121,18 +136,32 @@ export class ControlPanel {
         `;
 
         const buttons = [
-            { text: '← Влево', action: () => this.player.moveLeft(0.1) },
-            { text: 'Вправо →', action: () => this.player.moveRight(0.1) },
-            { text: '↑ Вперед', action: () => this.player.moveForward(0.1) },
-            { text: '↓ Назад', action: () => this.player.moveBackward(0.1) },
-            { text: 'Прыгнуть', action: () => this.player.jump() },
-            { text: 'Взять', action: () => this.player.togglePickup() }
+            { text: '← Влево', action: () => this.addCommand({ type: 'move_left' }) },
+            { text: 'Вправо →', action: () => this.addCommand({ type: 'move_right' }) },
+            { text: '↑ Вперед', action: () => this.addCommand({ type: 'move_forward' }) },
+            { text: '↓ Назад', action: () => this.addCommand({ type: 'move_backward' }) },
+            { text: 'Прыгнуть', action: () => this.addCommand({ type: 'jump' }) }
         ];
 
         buttons.forEach(({ text, action }) => {
             const btn = this.createButton(text, action);
             container.appendChild(btn);
         });
+
+        // Кнопка взять/отпустить с динамическим текстом
+        this.pickupButton = this.createButton('Взять', () => this.addCommand({ type: 'pickup' }));
+        container.appendChild(this.pickupButton);
+
+        // Кнопка Run
+        const btnRun = this.createButton('▶ Run', () => this.executeCommands());
+        btnRun.style.background = '#22cc22';
+        btnRun.style.fontWeight = 'bold';
+        container.appendChild(btnRun);
+
+        // Кнопка Clear
+        const btnClear = this.createButton('🗑 Clear', () => this.clearCommands());
+        btnClear.style.background = '#cc2222';
+        container.appendChild(btnClear);
 
         return container;
     }
@@ -154,6 +183,24 @@ export class ControlPanel {
         return btn;
     }
 
+    private createCommandStackText(): HTMLDivElement {
+        const stackText = document.createElement('div');
+        stackText.style.cssText = `
+            flex: 1;
+            padding: 10px;
+            background: rgba(100, 100, 255, 0.2);
+            border-radius: 4px;
+            font-size: 14px;
+            min-height: 40px;
+            max-height: 120px;
+            overflow-y: auto;
+            white-space: pre-line;
+            border: 2px solid rgba(100, 100, 255, 0.4);
+        `;
+        stackText.textContent = 'Стек команд: пусто';
+        return stackText;
+    }
+
     private createOutputText(): HTMLDivElement {
         const output = document.createElement('div');
         output.style.cssText = `
@@ -164,13 +211,91 @@ export class ControlPanel {
             font-size: 14px;
             min-height: 40px;
             overflow-y: auto;
+            white-space: pre-line;
         `;
         output.textContent = 'Готов к командам...';
         return output;
     }
 
+    private commandToString(cmd: Command): string {
+        const map: Record<Command['type'], string> = {
+            'move_left': '← Влево',
+            'move_right': 'Вправо →',
+            'move_forward': '↑ Вперед',
+            'move_backward': '↓ Назад',
+            'jump': 'Прыгнуть',
+            'pickup': 'Взять/Отпустить'
+        };
+        return map[cmd.type];
+    }
+
+    private updateCommandStackDisplay(): void {
+        if (this.commandStack.length === 0) {
+            this.commandStackText.textContent = 'Стек команд: пусто';
+        } else {
+            const commandsList = this.commandStack.map((cmd, i) =>
+                `${i + 1}. ${this.commandToString(cmd)}`
+            ).join('\n');
+            this.commandStackText.textContent = `Стек команд (${this.commandStack.length}):\n${commandsList}`;
+        }
+    }
+
+    private addCommand(cmd: Command): void {
+        this.commandStack.push(cmd);
+        this.updateCommandStackDisplay();
+    }
+
+    private clearCommands(): void {
+        this.commandStack = [];
+        this.updateCommandStackDisplay();
+    }
+
+    private async executeCommands(): Promise<void> {
+        if (this.isExecuting || this.commandStack.length === 0) return;
+
+        this.isExecuting = true;
+        const commands = [...this.commandStack];
+
+        for (let i = 0; i < commands.length; i++) {
+            const cmd = commands[i];
+
+            // Выполняем команду
+            switch (cmd.type) {
+                case 'move_left':
+                    this.player.moveLeft(0.1);
+                    break;
+                case 'move_right':
+                    this.player.moveRight(0.1);
+                    break;
+                case 'move_forward':
+                    this.player.moveForward(0.1);
+                    break;
+                case 'move_backward':
+                    this.player.moveBackward(0.1);
+                    break;
+                case 'jump':
+                    this.player.jump();
+                    break;
+                case 'pickup':
+                    this.player.togglePickup();
+                    break;
+            }
+
+            // Задержка между командами
+            await new Promise(resolve => setTimeout(resolve, 300));
+        }
+
+        this.isExecuting = false;
+    }
+
     setOutput(text: string): void {
         this.outputText.textContent = text;
+    }
+
+    updatePickupButton(isCarrying: boolean): void {
+        if (this.pickupButton) {
+            this.pickupButton.textContent = isCarrying ? 'Отпустить' : 'Взять';
+        }
     }
 
     mount(parent: HTMLElement = document.body): void {

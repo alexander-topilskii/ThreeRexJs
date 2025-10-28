@@ -43,8 +43,8 @@ export class Player {
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.position.set(pos.x, pos.y, pos.z);
 
-        // Добавляем в физику (масса = 1)
-        this.physics.addMesh(this.mesh, 1);
+        // Добавляем в физику (масса = 5, больше чем у куба для корректных коллизий)
+        this.physics.addMesh(this.mesh, 5);
     }
 
     // Движение в абсолютных направлениях (без учета камеры)

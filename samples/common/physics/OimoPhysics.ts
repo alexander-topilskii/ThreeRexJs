@@ -56,8 +56,8 @@ export async function OimoPhysics() {
       rot: rotDeg,
       move: isDynamic,
       density: mass || 1,
-      friction: 0.8,
-      restitution: 0.2,
+      friction: 0.9, // Увеличено для лучшего контроля
+      restitution: 0.1, // Уменьшено для меньшего отскока
     });
 
     // Keep initial transform in sync
