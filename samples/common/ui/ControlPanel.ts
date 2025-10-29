@@ -1,7 +1,10 @@
 import type { Player } from '../Player';
+import type { ChatGPTCommandService } from '../services/ChatGPTCommandService';
 
 export interface ControlPanelOptions {
     onCommand?: (command: string) => void;
+    chatService?: ChatGPTCommandService;
+    onRequestCommands?: () => Promise<void>;
 }
 
 export type Command =
@@ -15,28 +18,35 @@ export type Command =
 export class ControlPanel {
     element: HTMLDivElement;
     private inputField: HTMLInputElement;
+    private apiKeyInput: HTMLInputElement;
     private outputText: HTMLDivElement;
     private commandStackText: HTMLDivElement;
     private player: Player;
     private onCommand?: (command: string) => void;
+    private onRequestCommands?: () => Promise<void>;
     private pickupButton: HTMLButtonElement | null = null;
     private commandStack: Command[] = [];
     private isExecuting: boolean = false;
-    private onRunCommands?: (commands: Command[]) => void;
+    private chatService?: ChatGPTCommandService;
 
     constructor(player: Player, options: ControlPanelOptions = {}) {
         this.player = player;
         this.onCommand = options.onCommand;
+        this.chatService = options.chatService;
+        this.onRequestCommands = options.onRequestCommands;
 
         // Создаем панель
         this.element = this.createPanel();
         this.inputField = this.createInputField();
+        this.apiKeyInput = this.createApiKeyInput();
         this.outputText = this.createOutputText();
         this.commandStackText = this.createCommandStackText();
 
+        const apiKeyContainer = this.createApiKeyContainer();
         const inputContainer = this.createInputContainer();
         const buttonsContainer = this.createButtonsContainer();
 
+        this.element.appendChild(apiKeyContainer);
         this.element.appendChild(inputContainer);
         this.element.appendChild(buttonsContainer);
         this.element.appendChild(this.commandStackText);
@@ -118,13 +128,62 @@ export class ControlPanel {
         return container;
     }
 
-    private handleCommand(): void {
+    private async handleCommand(): Promise<void> {
         const command = this.inputField.value.trim();
         if (command) {
-            this.setOutput(`Команда: ${command}`);
-            this.onCommand?.(command);
+            this.setOutput(`Запрос к ChatGPT: "${command}"...`);
             this.inputField.value = '';
+
+            try {
+                await this.onRequestCommands?.();
+            } catch (error) {
+                this.setOutput(`Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
+            }
         }
+    }
+
+    private createApiKeyInput(): HTMLInputElement {
+        const input = document.createElement('input');
+        input.type = 'password';
+        input.placeholder = 'OpenAI API Key';
+        input.style.cssText = `
+            padding: 8px;
+            font-size: 12px;
+            font-family: monospace;
+            flex: 1;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+        `;
+
+        input.addEventListener('change', () => {
+            this.chatService?.setApiKey(input.value);
+        });
+
+        return input;
+    }
+
+    private createApiKeyContainer(): HTMLDivElement {
+        const container = document.createElement('div');
+        container.style.cssText = `
+            display: flex;
+            gap: 5px;
+            flex: 1;
+            align-items: center;
+        `;
+
+        const label = document.createElement('span');
+        label.textContent = '🔑 API:';
+        label.style.cssText = `
+            font-size: 14px;
+            white-space: nowrap;
+        `;
+
+        container.appendChild(label);
+        container.appendChild(this.apiKeyInput);
+
+        return container;
     }
 
     private createButtonsContainer(): HTMLDivElement {
@@ -248,6 +307,15 @@ export class ControlPanel {
     private clearCommands(): void {
         this.commandStack = [];
         this.updateCommandStackDisplay();
+    }
+
+    addCommands(commands: Command[]): void {
+        this.commandStack.push(...commands);
+        this.updateCommandStackDisplay();
+    }
+
+    getUserMessage(): string {
+        return this.inputField.value.trim();
     }
 
     private async executeCommands(): Promise<void> {

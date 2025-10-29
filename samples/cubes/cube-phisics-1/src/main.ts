@@ -11,6 +11,7 @@ import { GameWorld } from '../../../common/GameWorld';
 import { GameStatusManager } from '../../../common/GameStatusManager';
 import { CubeUISync } from '../../../common/CubeUISync';
 import { GameLoop } from '../../../common/GameLoop';
+import { ChatGPTCommandService } from '../../../common/services/ChatGPTCommandService';
 
 // === Константы ===
 const GROUND_SIZE = 40;
@@ -55,9 +56,24 @@ const controller = createPlayerController(camera, renderer.domElement, {
     // === Эффекты ===
     const confetti = new ConfettiSystem(scene);
 
+    // === ChatGPT сервис ===
+    const chatService = new ChatGPTCommandService();
+
     // === UI ===
     const controlPanel = new ControlPanel(player, {
-        onCommand: (cmd) => console.log('Команда:', cmd)
+        chatService,
+        onRequestCommands: async () => {
+            const userMessage = controlPanel.getUserMessage();
+            const gameState = {
+                robotPosition: player.getPosition(),
+                cubePosition: world.cube.position,
+                spherePosition: world.goalSphere.position,
+                isCarryingCube: player.isCarrying
+            };
+
+            const commands = await chatService.generateCommands(gameState, userMessage);
+            controlPanel.addCommands(commands);
+        }
     });
     controlPanel.mount();
 
