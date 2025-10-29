@@ -255,11 +255,11 @@ export class ControlPanel {
         `;
 
         const buttons = [
-            { text: '← Влево', action: () => this.addCommand({ type: 'move_left' }) },
-            { text: 'Вправо →', action: () => this.addCommand({ type: 'move_right' }) },
-            { text: '↑ Вперед', action: () => this.addCommand({ type: 'move_forward' }) },
-            { text: '↓ Назад', action: () => this.addCommand({ type: 'move_backward' }) },
-            { text: 'Прыгнуть', action: () => this.addCommand({ type: 'jump' }) }
+            { text: 'X-', action: () => this.addCommand({ type: 'move_left' }) },
+            { text: 'X+', action: () => this.addCommand({ type: 'move_right' }) },
+            { text: 'Z-', action: () => this.addCommand({ type: 'move_forward' }) },
+            { text: 'Z+', action: () => this.addCommand({ type: 'move_backward' }) },
+            { text: 'Y+', action: () => this.addCommand({ type: 'jump' }) }
         ];
 
         buttons.forEach(({ text, action }) => {
@@ -268,7 +268,7 @@ export class ControlPanel {
         });
 
         // Кнопка взять/отпустить с динамическим текстом
-        this.pickupButton = this.createButton('Взять', () => this.addCommand({ type: 'pickup' }));
+        this.pickupButton = this.createButton('Взять/Отпустить', () => this.addCommand({ type: 'pickup' }));
         container.appendChild(this.pickupButton);
 
         // Кнопка Run
@@ -338,11 +338,11 @@ export class ControlPanel {
 
     private commandToString(cmd: Command): string {
         const map: Record<Command['type'], string> = {
-            'move_left': '← Влево',
-            'move_right': 'Вправо →',
-            'move_forward': '↑ Вперед',
-            'move_backward': '↓ Назад',
-            'jump': 'Прыгнуть',
+            'move_left': 'X-',
+            'move_right': 'X+',
+            'move_forward': 'Z-',
+            'move_backward': 'Z+',
+            'jump': 'Y+',
             'pickup': 'Взять/Отпустить'
         };
         return map[cmd.type];
@@ -422,7 +422,7 @@ export class ControlPanel {
 
     updatePickupButton(isCarrying: boolean): void {
         if (this.pickupButton) {
-            this.pickupButton.textContent = isCarrying ? 'Отпустить' : 'Взять';
+            this.pickupButton.textContent = 'Взять/Отпустить';
         }
     }
 
