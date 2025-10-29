@@ -57,6 +57,5 @@ window.addEventListener('resize', resizeRendererToRightPane);
 
 
 const box = document.getElementById('box')!;
-const stage = document.getElementById('stage')!;
 
-const draggie = new Draggabilly(box, {containment: stage});
+const draggie = new Draggabilly(box, {containment: document.body});
