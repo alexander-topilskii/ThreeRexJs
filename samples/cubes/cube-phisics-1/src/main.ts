@@ -20,7 +20,7 @@ const PICKUP_DISTANCE = 3;
 
 // === Сцена и рендерер ===
 const scene = new THREE.Scene();
-const camera = getPerspectiveCamera(3);
+const camera = getPerspectiveCamera();
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);

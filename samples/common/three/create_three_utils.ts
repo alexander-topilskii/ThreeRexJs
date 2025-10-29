@@ -20,6 +20,7 @@ export class ThreeComponents {
     }
 
     displayIn(element: HTMLElement) {
+        element.appendChild(this.renderer.domElement);
     }
 
     draw() {

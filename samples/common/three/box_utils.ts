@@ -2,7 +2,7 @@ import {Mesh, Vector3} from "three";
 import * as THREE from "three";
 
 
-export function createCube(position: Vector3 = new Vector3(0, 3, 0)): Mesh {
+export function createCube(position: Vector3 = new Vector3(0, 0, 0)): Mesh {
     const geometry = new THREE.BoxGeometry();
     const material = new THREE.MeshNormalMaterial();
     const cube = new THREE.Mesh(geometry, material);

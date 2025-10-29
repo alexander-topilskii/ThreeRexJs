@@ -2,6 +2,7 @@ import Split from 'split.js';
 import {Mesh} from 'three';
 import {createThree, ThreeComponents} from "../../../common/three/create_three_utils";
 import {createCube} from "../../../common/three/box_utils";
+import '../../../common/kotlin/scope'
 
 const split = Split(['#left', '#right'], {
     sizes: [30, 70],
@@ -13,11 +14,13 @@ const split = Split(['#left', '#right'], {
 const right = document.getElementById('right')!;
 
 // --- Three.js ---
-const threeComponents: ThreeComponents = createThree()
-    .also((it: ThreeComponents) => it.displayIn(right))
+const threeComponents: ThreeComponents = createThree().also (t=> {
+    t.displayIn(right)
+});
 
-const cube: Mesh = createCube()
-    .also((cube: Mesh) => threeComponents.addOnScene(cube));
+
+const cube: Mesh = createCube();
+threeComponents.addOnScene(cube);
 
 function resizeRendererToRightPane() {
     const rect = right.getBoundingClientRect();
