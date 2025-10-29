@@ -1,50 +1,66 @@
-body {
+/* === Base / reset === */
+:root {
+    --bg: #282830;
+    --fg: #fff;
+    --gutter: #2b2f36;
+    --pad: 12px;
+    --gutter-size: 8px;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
     margin: 0;
+}
+
+body {
     overflow: hidden;
-    background: #282830;
-    color: #ffffff;
+    background: var(--bg);
+    color: var(--fg);
 }
 
 canvas {
     display: block;
 }
 
-/* Main split*/
-html, body, #main-split, #left-split {
-    height: 100%;
-    margin: 0;
-}
-
-#main-split{
+/* === Layout === */
+#main-split {
     display: flex;
     flex-direction: row;
-}
-
-#left {
-    overflow: auto;
-}
-
-#left, #right {
-    padding: 12px;
+    height: 100%;
 }
 
 #left-split {
     width: 100%;
-    margin: 0;
-}
-
-#left-top, #left-bottom {
-    padding: 12px;
     height: 100%;
-    width: 100%;
 }
 
-/* оформление «плашки» между панелями */
-.gutter {
-    background: #2b2f36;
+/* Общие отступы для панелей */
+.panel,
+#left,
+#right,
+#left-top,
+#left-bottom {
+    padding: var(--pad);
 }
 
+/* Точные правила, где нужно */
+#left { overflow: auto; }
+#left-top,
+#left-bottom { width: 100%; height: 100%; }
+
+/* === Split.js gutters === */
+.gutter { background: var(--gutter); }
 .gutter.gutter-horizontal {
-    width: 8px;
+    width: var(--gutter-size);
     cursor: col-resize;
+}
+.gutter.gutter-vertical {
+    height: var(--gutter-size);
+    cursor: row-resize;
 }
