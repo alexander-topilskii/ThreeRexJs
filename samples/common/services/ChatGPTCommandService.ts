@@ -9,13 +9,23 @@ export interface GameState {
 
 export interface ChatGPTCommandServiceOptions {
     apiKey?: string;
+    model?: string;
 }
+
+export const AI_MODELS = [
+    { value: 'gpt-4o', label: 'GPT-4o (рекомендуется)' },
+    { value: 'gpt-4o-mini', label: 'GPT-4o Mini (быстрее)' },
+    { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+    { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo (дешевле)' }
+] as const;
 
 export class ChatGPTCommandService {
     private apiKey: string = '';
+    private model: string = 'gpt-4o-mini';
 
     constructor(options: ChatGPTCommandServiceOptions = {}) {
         this.apiKey = options.apiKey || '';
+        this.model = options.model || 'gpt-4o-mini';
     }
 
     setApiKey(key: string): void {
@@ -24,6 +34,14 @@ export class ChatGPTCommandService {
 
     getApiKey(): string {
         return this.apiKey;
+    }
+
+    setModel(model: string): void {
+        this.model = model;
+    }
+
+    getModel(): string {
+        return this.model;
     }
 
     async generateCommands(gameState: GameState, userMessage: string): Promise<Command[]> {
@@ -41,7 +59,7 @@ export class ChatGPTCommandService {
                     'Authorization': `Bearer ${this.apiKey}`
                 },
                 body: JSON.stringify({
-                    model: 'gpt-4o-mini',
+                    model: this.model,
                     messages: [
                         {
                             role: 'system',

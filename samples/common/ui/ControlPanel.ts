@@ -1,5 +1,6 @@
 import type { Player } from '../Player';
 import type { ChatGPTCommandService } from '../services/ChatGPTCommandService';
+import { AI_MODELS } from '../services/ChatGPTCommandService';
 
 export interface ControlPanelOptions {
     onCommand?: (command: string) => void;
@@ -19,6 +20,7 @@ export class ControlPanel {
     element: HTMLDivElement;
     private inputField: HTMLInputElement;
     private apiKeyInput: HTMLInputElement;
+    private modelSelect: HTMLSelectElement;
     private outputText: HTMLDivElement;
     private commandStackText: HTMLDivElement;
     private player: Player;
@@ -39,6 +41,7 @@ export class ControlPanel {
         this.element = this.createPanel();
         this.inputField = this.createInputField();
         this.apiKeyInput = this.createApiKeyInput();
+        this.modelSelect = this.createModelSelect();
         this.outputText = this.createOutputText();
         this.commandStackText = this.createCommandStackText();
 
@@ -88,6 +91,15 @@ export class ControlPanel {
             border: none;
             border-radius: 4px;
         `;
+
+        // Предотвращаем перехват управления игроком при вводе
+        input.addEventListener('keydown', (e) => {
+            e.stopPropagation();
+        });
+        input.addEventListener('keyup', (e) => {
+            e.stopPropagation();
+        });
+
         return input;
     }
 
@@ -130,15 +142,15 @@ export class ControlPanel {
 
     private async handleCommand(): Promise<void> {
         const command = this.inputField.value.trim();
-        if (command) {
-            this.setOutput(`Запрос к ChatGPT: "${command}"...`);
-            this.inputField.value = '';
 
-            try {
-                await this.onRequestCommands?.();
-            } catch (error) {
-                this.setOutput(`Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
-            }
+        // Разрешаем отправку даже с пустым сообщением
+        this.setOutput(`Запрос к ChatGPT${command ? `: "${command}"` : ''}...`);
+        this.inputField.value = '';
+
+        try {
+            await this.onRequestCommands?.();
+        } catch (error) {
+            this.setOutput(`Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
         }
     }
 
@@ -161,7 +173,45 @@ export class ControlPanel {
             this.chatService?.setApiKey(input.value);
         });
 
+        // Предотвращаем перехват управления игроком при вводе
+        input.addEventListener('keydown', (e) => {
+            e.stopPropagation();
+        });
+        input.addEventListener('keyup', (e) => {
+            e.stopPropagation();
+        });
+
         return input;
+    }
+
+    private createModelSelect(): HTMLSelectElement {
+        const select = document.createElement('select');
+        select.style.cssText = `
+            padding: 8px;
+            font-size: 12px;
+            font-family: monospace;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            cursor: pointer;
+        `;
+
+        AI_MODELS.forEach(model => {
+            const option = document.createElement('option');
+            option.value = model.value;
+            option.textContent = model.label;
+            if (model.value === 'gpt-4o-mini') {
+                option.selected = true;
+            }
+            select.appendChild(option);
+        });
+
+        select.addEventListener('change', () => {
+            this.chatService?.setModel(select.value);
+        });
+
+        return select;
     }
 
     private createApiKeyContainer(): HTMLDivElement {
@@ -180,8 +230,18 @@ export class ControlPanel {
             white-space: nowrap;
         `;
 
+        const modelLabel = document.createElement('span');
+        modelLabel.textContent = '🤖 Модель:';
+        modelLabel.style.cssText = `
+            font-size: 14px;
+            white-space: nowrap;
+            margin-left: 10px;
+        `;
+
         container.appendChild(label);
         container.appendChild(this.apiKeyInput);
+        container.appendChild(modelLabel);
+        container.appendChild(this.modelSelect);
 
         return container;
     }
