@@ -1,14 +1,30 @@
 import * as THREE from 'three';
-import {Vector3} from "three";
+import {Mesh, Vector3} from 'three';
 import {getPerspectiveCamera} from "./three_utils";
 
+export class ThreeComponents {
+    constructor(
+        public scene: THREE.Scene,
+        public camera: THREE.PerspectiveCamera,
+        public renderer: THREE.WebGLRenderer) {
+    };
 
+    onWindowResize(width: number, height: number) {
+        this.renderer.setSize(width, height);
+        this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
+    }
 
+    addOnScene(cube: Mesh) {
+        this.scene.add(cube)
+    }
 
-interface ThreeComponents {
-    scene: THREE.Scene;
-    camera: THREE.PerspectiveCamera;
-    renderer: THREE.WebGLRenderer;
+    displayIn(element: HTMLElement) {
+    }
+
+    draw() {
+        this.renderer.render(this.scene, this.camera);
+    }
 }
 
 
@@ -21,5 +37,5 @@ export function createThree(
 
     const renderer = new THREE.WebGLRenderer({antialias: true});
 
-    return {scene, camera, renderer};
+    return new ThreeComponents(scene, camera, renderer);
 }
