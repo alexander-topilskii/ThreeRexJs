@@ -9,19 +9,42 @@ canvas {
     display: block;
 }
 
+/* Main split*/
+html, body, #main-split, #left-split {
+    height: 100%;
+    margin: 0;
+}
 
-html, body, #split { height: 100%; margin: 0; }
-#split { display: flex; }
+#main-split{
+    display: flex;
+    flex-direction: row;
+}
+
+#left {
+    overflow: auto;
+}
 
 #left, #right {
-    overflow: auto;
     padding: 12px;
+}
+
+#left-split {
+    width: 100%;
+    margin: 0;
+}
+
+#left-top, #left-bottom {
+    padding: 12px;
+    height: 100%;
+    width: 100%;
 }
 
 /* оформление «плашки» между панелями */
 .gutter {
     background: #2b2f36;
 }
+
 .gutter.gutter-horizontal {
-    width: 8px; cursor: col-resize;
+    width: 8px;
+    cursor: col-resize;
 }

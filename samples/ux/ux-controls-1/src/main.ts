@@ -4,18 +4,26 @@ import {createThree, ThreeComponents} from "../../../common/three/create_three_u
 import {createCube} from "../../../common/three/box_utils";
 import '../../../common/kotlin/scope'
 
-const split = Split(['#left', '#right'], {
+const mainSplit = Split(['#left', '#right'], {
     sizes: [30, 70],
     minSize: [160, 200],
     gutterSize: 8,
+    direction: 'horizontal',
     onDrag: () => resizeRendererToRightPane(),
+});
+
+const topBottomLeftSplit = Split(['#left-top', '#left-bottom'], {
+    sizes: [50, 50],
+    minSize: [50, 200],
+    gutterSize: 8,
+    direction: 'vertical',
 });
 
 const right = document.getElementById('right')!;
 
 // --- Three.js ---
-const threeComponents: ThreeComponents = createThree().also (t=> {
-    t.displayIn(right)
+const threeComponents: ThreeComponents = createThree().also(threeComponents => {
+    threeComponents.displayIn(right)
 });
 
 
