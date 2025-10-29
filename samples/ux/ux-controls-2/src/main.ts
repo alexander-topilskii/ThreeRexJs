@@ -5,6 +5,8 @@ import {createCube} from "../../../common/three/box_utils";
 import '../../../common/kotlin/scope'
 import Draggabilly from 'draggabilly';
 import {createTransformPanel} from "../../../common/panel_utils";
+import {TransformPanel} from "../../../common/ui/slider_panel";
+import {degToRad, radToDeg} from "../../../common/ui_utils";
 
 const mainSplit = Split(['#left', '#right'], {
     sizes: [30, 70],
@@ -25,7 +27,6 @@ const topBottomLeftSplit = Split(['#left-top', '#left-bottom'], {
 const rightPanel = document.getElementById('right')!;
 const leftPanel = document.getElementById('left-top')!;
 
-createTransformPanel(leftPanel)
 
 // --- Three.js ---
 const threeComponents: ThreeComponents = createThree().also(threeComponents => {
@@ -46,10 +47,31 @@ function resizeRendererToRightPane() {
 // первичная подгонка размера
 resizeRendererToRightPane();
 
+const tp = new TransformPanel({
+    id: "transformPanel",
+    container: leftPanel,
+    floating: false,
+    anchor: {top: "12px", right: "12px"},
+    initialPosition: {x: 0, y: 1, z: 2},
+    initialRotationDeg: {x: 0, y: 45, z: 0},
+});
+
+// Подписка на изменения
+tp.onChange(({type, value}) => {
+    if (type === "position") {
+        cube.position.set(value.x, value.y, value.z);
+    } else {
+        cube.rotation.set(value.x/10, value.y/10, value.z/10);
+    }
+});
+
 function animate() {
     requestAnimationFrame(animate);
     cube.rotation.x += 0.01;
     cube.rotation.y += 0.01;
+
+    tp.setPosition(cube.position)
+    tp.setRotationDeg(cube.rotation)
 
     threeComponents.draw()
 }
