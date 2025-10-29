@@ -3,6 +3,7 @@ import {Mesh} from 'three';
 import {createThree, ThreeComponents} from "../../../common/three/create_three_utils";
 import {createCube} from "../../../common/three/box_utils";
 import '../../../common/kotlin/scope'
+import Draggabilly from 'draggabilly';
 
 const mainSplit = Split(['#left', '#right'], {
     sizes: [30, 70],
@@ -18,6 +19,7 @@ const topBottomLeftSplit = Split(['#left-top', '#left-bottom'], {
     gutterSize: 8,
     direction: 'vertical',
 });
+
 
 const right = document.getElementById('right')!;
 
@@ -52,3 +54,15 @@ function animate() {
 animate();
 
 window.addEventListener('resize', resizeRendererToRightPane);
+
+
+const box = document.getElementById('box')!;
+const stage = document.getElementById('stage')!;
+
+const draggie = new Draggabilly(box, {
+    containment: stage
+});
+
+draggie.on('dragMove', (event, pointer, moveVector) => {
+    console.log(moveVector.x, moveVector.y);
+});

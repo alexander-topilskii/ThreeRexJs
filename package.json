@@ -20,13 +20,14 @@
     "preview": "vite preview --strictPort"
   },
   "dependencies": {
+    "draggabilly": "^3.0.0",
     "oimo": "^1.0.9",
-    "plain-draggable": "^2.5.15",
     "split.js": "^1.6.5",
     "stats.js": "^0.17.0",
     "three": "^0.169.0"
   },
   "devDependencies": {
+    "@types/draggabilly": "^3.0.0",
     "@types/three": "^0.169.0",
     "execa": "^9.4.0",
     "fs-extra": "^11.2.0",
