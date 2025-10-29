@@ -21,8 +21,9 @@
   },
   "dependencies": {
     "oimo": "^1.0.9",
-    "stats.js": "^0.17.0",
+    "plain-draggable": "^2.5.15",
     "split.js": "^1.6.5",
+    "stats.js": "^0.17.0",
     "three": "^0.169.0"
   },
   "devDependencies": {
