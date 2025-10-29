@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev.mjs",
+    "_comment1": "---------------------- CUBE --------------------------",
     "dev:cube_sample_1": "node scripts/dev.mjs samples/cubes/sample-1",
     "dev:cube_fps_1": "node scripts/dev.mjs samples/cubes/fps-1",
     "dev:cube-text-1": "node scripts/dev.mjs samples/cubes/cube-text-1",
@@ -12,14 +13,16 @@
     "dev:cube-plane-1": "node scripts/dev.mjs samples/cubes/cube-plane-1",
     "dev:cube-phisics-1": "node scripts/dev.mjs samples/cubes/cube-phisics-1",
     "dev:cube_shaders_1": "node scripts/dev.mjs samples/shaders/sample-1",
-    "_comment": "--------------------------------------------------------",
+    "_comment2": "---------------------- UX --------------------------",
     "dev:ux-controls-1": "node scripts/dev.mjs samples/ux/ux-controls-1",
+    "_comment3": "---------------------- Shaders --------------------------",
     "build": "node scripts/build-all.mjs",
     "preview": "vite preview --strictPort"
   },
   "dependencies": {
     "oimo": "^1.0.9",
     "stats.js": "^0.17.0",
+    "split.js": "^1.6.5",
     "three": "^0.169.0"
   },
   "devDependencies": {
@@ -28,6 +31,6 @@
     "fs-extra": "^11.2.0",
     "globby": "^14.0.2",
     "typescript": "^5.6.2",
-    "vite": "^5.4.10"
+    "vite": "7.1.11"
   }
 }
