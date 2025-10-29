@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import {Mesh, Vector3} from "three";
-import {radToDeg} from "./ui_utils";
+import {radToDeg} from "../ui_utils";
 
-export function getPerspectiveCamera(positionZ: number = 3) {
+export function getPerspectiveCamera( cameraPosition: Vector3 = new Vector3(0, 0, 3)) {
     const camera = new THREE.PerspectiveCamera(
         75,
         window.innerWidth / window.innerHeight,
@@ -10,21 +10,13 @@ export function getPerspectiveCamera(positionZ: number = 3) {
         1000
     );
 
-    camera.position.z = positionZ;
+    camera.position.x = cameraPosition.x;
+    camera.position.y = cameraPosition.y;
+    camera.position.z = cameraPosition.z;
 
     return camera;
 }
 
-export function createCube(position: Vector3 = new Vector3(0, 3, 0)): Mesh {
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshNormalMaterial();
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.x = position.x;
-    cube.position.y = position.y;
-    cube.position.z = position.z;
-
-    return cube;
-}
 
 
 declare module 'three' {

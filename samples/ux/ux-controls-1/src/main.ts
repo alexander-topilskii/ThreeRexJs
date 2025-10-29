@@ -1,31 +1,46 @@
+import Split from 'split.js';
 import * as THREE from 'three';
-import Split from 'split.js'
+import {createThree} from "../../../common/three/create_three_utils";
 
-Split(['#left', '#right'])
+const split = Split(['#left', '#right'], {
+    sizes: [30, 70],
+    minSize: [160, 200],
+    gutterSize: 8,
+    onDrag: () => resizeRendererToRightPane(),
+});
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 3;
+const right = document.getElementById('right')!;
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+// --- Three.js ---
+const {scene, camera, renderer} = createThree()
 
-const geometry = new THREE.BoxGeometry();
-const material = new THREE.MeshNormalMaterial();
-const cube = new THREE.Mesh(geometry, material);
+
+right.appendChild(renderer.domElement);
+
+const cube = new THREE.Mesh(new THREE.BoxGeometry(), new THREE.MeshNormalMaterial());
 scene.add(cube);
 
-function animate() {
-  requestAnimationFrame(animate);
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
-  renderer.render(scene, camera);
+function resizeRendererToRightPane() {
+    const rect = right.getBoundingClientRect();
+    const w = Math.max(1, Math.floor(rect.width));
+    const h = Math.max(1, Math.floor(rect.height));
+
+
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
 }
+
+// первичная подгонка размера
+resizeRendererToRightPane();
+
+function animate() {
+    requestAnimationFrame(animate);
+    cube.rotation.x += 0.01;
+    cube.rotation.y += 0.01;
+    renderer.render(scene, camera);
+}
+
 animate();
 
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
+window.addEventListener('resize', resizeRendererToRightPane);

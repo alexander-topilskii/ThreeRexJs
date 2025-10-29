@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { getDataTextBlock, getInfoBlock } from '../../../common/html_utils';
-import { getPerspectiveCamera } from '../../../common/three_utils';
+import { getPerspectiveCamera } from '../../../common/three/three_utils';
 import { OimoPhysics } from '../../../common/physics/OimoPhysics';
 import { createTransformPanel } from '../../../common/panel_utils';
 import { createPlayerController } from '../../../common/player_utils';

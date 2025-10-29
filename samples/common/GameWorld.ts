@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { createGradientPlane, createGrid } from './plane_helpers';
 import { createWalls, createGroundCollider, createGoalSphere } from './scene_setup';
-import { createCube } from './three_utils';
 import type { OimoHelper } from './physics/OimoPhysics';
 import { addStaticMeshes, addDynamicMesh } from './physics_setup';
+import {createCube} from "./three/box_utils";
 
 export interface GameWorldOptions {
     groundSize?: number;

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { getDataTextBlock, getInfoBlock } from '../../../common/html_utils';
-import { createCube, getPerspectiveCamera } from '../../../common/three_utils';
+import { getPerspectiveCamera } from '../../../common/three/three_utils';
+import {createCube} from "../../../common/three/box_utils";
 
 // === Сцена ===
 const scene = new THREE.Scene();

@@ -8,3 +8,20 @@ body {
 canvas {
     display: block;
 }
+
+
+html, body, #split { height: 100%; margin: 0; }
+#split { display: flex; }
+
+#left, #right {
+    overflow: auto;
+    padding: 12px;
+}
+
+/* оформление «плашки» между панелями */
+.gutter {
+    background: #2b2f36;
+}
+.gutter.gutter-horizontal {
+    width: 8px; cursor: col-resize;
+}

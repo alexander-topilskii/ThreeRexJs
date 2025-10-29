@@ -5,12 +5,13 @@ import {
     updateCubePositionText,
     updateCubeRotationText
 } from '../../../common/html_utils';
-import {createCube, getPerspectiveCamera} from '../../../common/three_utils';
+import {getPerspectiveCamera} from '../../../common/three/three_utils';
 import {createTransformPanel} from '../../../common/panel_utils';
+import {createCube} from "../../../common/three/box_utils";
 
 // === Сцена ===
 const scene = new THREE.Scene();
-const camera = getPerspectiveCamera(3);
+const camera = getPerspectiveCamera();
 
 const renderer = new THREE.WebGLRenderer({antialias: true});
 renderer.setSize(window.innerWidth, window.innerHeight);
