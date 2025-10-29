@@ -59,10 +59,4 @@ window.addEventListener('resize', resizeRendererToRightPane);
 const box = document.getElementById('box')!;
 const stage = document.getElementById('stage')!;
 
-const draggie = new Draggabilly(box, {
-    containment: stage
-});
-
-draggie.on('dragMove', (event, pointer, moveVector) => {
-    console.log(moveVector.x, moveVector.y);
-});
+const draggie = new Draggabilly(box, {containment: stage});
