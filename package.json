@@ -15,6 +15,7 @@
     "dev:cube_shaders_1": "node scripts/dev.mjs samples/shaders/sample-1",
     "_comment2": "---------------------- UX --------------------------",
     "dev:ux-controls-1": "node scripts/dev.mjs samples/ux/ux-controls-1",
+    "dev:ux-controls-2": "node scripts/dev.mjs samples/ux/ux-controls-2",
     "_comment3": "---------------------- Shaders --------------------------",
     "build": "node scripts/build-all.mjs",
     "preview": "vite preview --strictPort"

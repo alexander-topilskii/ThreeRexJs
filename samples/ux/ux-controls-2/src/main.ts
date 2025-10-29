@@ -4,6 +4,7 @@ import {createThree, ThreeComponents} from "../../../common/three/create_three_u
 import {createCube} from "../../../common/three/box_utils";
 import '../../../common/kotlin/scope'
 import Draggabilly from 'draggabilly';
+import {createTransformPanel} from "../../../common/panel_utils";
 
 const mainSplit = Split(['#left', '#right'], {
     sizes: [30, 70],
@@ -22,6 +23,9 @@ const topBottomLeftSplit = Split(['#left-top', '#left-bottom'], {
 
 
 const rightPanel = document.getElementById('right')!;
+const leftPanel = document.getElementById('left-top')!;
+
+createTransformPanel(leftPanel)
 
 // --- Three.js ---
 const threeComponents: ThreeComponents = createThree().also(threeComponents => {

@@ -1,0 +1,88 @@
+/* === Base / reset === */
+:root {
+    --bg: #282830; /* основной цвет фона страницы */
+    --fg: #fff; /* основной цвет текста */
+    --gutter: #2b2f36; /* цвет разделителей Split.js */
+    --pad: 12px; /* стандартные внутренние отступы */
+    --gutter-size: 8px; /* ширина или высота разделителя */
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box; /* чтобы padding и border входили в размеры элемента */
+}
+
+html, body {
+    height: 100%; /* растягиваем страницу на всю высоту окна */
+    margin: 0; /* убираем стандартные отступы браузера */
+}
+
+body {
+    overflow: hidden; /* отключаем прокрутку (панели займут всю область) */
+    background: var(--bg); /* задаём тёмный фон */
+    color: var(--fg); /* белый цвет текста */
+}
+
+canvas {
+    display: block; /* убираем отступы у canvas, чтобы не было inline-gap */
+}
+
+/* === Layout === */
+#main-split {
+    display: flex; /* основной контейнер — флекс-бокс */
+    flex-direction: row; /* располагаем панели по горизонтали */
+    height: 100%; /* растягиваем на всю высоту окна */
+}
+
+#left-split {
+    width: 100%; /* левая часть заполняет доступное пространство */
+    height: 100%; /* растягиваем на всю высоту левой панели */
+}
+
+/* Общие отступы для панелей */
+.panel,
+#left,
+#right,
+#left-top,
+#left-bottom {
+    padding: var(--pad); /* добавляем одинаковые внутренние отступы */
+}
+
+/* === Split.js gutters === */
+.gutter {
+    background: var(--gutter); /* цвет разделительной полосы */
+}
+
+.gutter.gutter-horizontal {
+    width: var(--gutter-size); /* толщина горизонтального разделителя */
+    cursor: col-resize; /* курсор с двойной стрелкой по горизонтали */
+}
+
+.gutter.gutter-vertical {
+    height: var(--gutter-size); /* толщина вертикального разделителя */
+    cursor: row-resize; /* курсор с двойной стрелкой по вертикали */
+}
+
+/* === Перетаскиваемый блок === */
+#box {
+    position: absolute;
+    width: 120px; /* ширина блока */
+    height: 120px; /* высота блока */
+    background: #1e293b; /* цвет фона (тёмно-синий) */
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    z-index: 999;
+    backdrop-filter: blur(6px);
+    color: #fff; /* цвет текста */
+    display: flex; /* используем flex для центрирования текста */
+    align-items: center; /* вертикальное выравнивание по центру */
+    justify-content: center; /* горизонтальное выравнивание по центру */
+    cursor: grab; /* курсор-рука при наведении */
+    user-select: none; /* запрет выделения текста при перетаскивании */
+}
+
+#box:active {
+    cursor: grabbing; /* курсор при нажатии — “схватил” */
+}
+

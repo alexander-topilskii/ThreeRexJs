@@ -3,8 +3,16 @@ export type Slider = HTMLInputElement;
 // Add methods to HTMLDivElement via declaration merging so panel can expose helpers
 declare global {
     interface HTMLDivElement {
-        updatePositions: ( targets: { x: { value: string | number }; y: { value: string | number }; z: { value: string | number } }) => void;
-        updateRotation: (targets: { x: { value: string | number }; y: { value: string | number }; z: { value: string | number } }) => void;
+        updatePositions: (targets: {
+            x: { value: string | number };
+            y: { value: string | number };
+            z: { value: string | number }
+        }) => void;
+        updateRotation: (targets: {
+            x: { value: string | number };
+            y: { value: string | number };
+            z: { value: string | number }
+        }) => void;
         positions: { x: Slider; y: Slider; z: Slider };
         rotations: { x: Slider; y: Slider; z: Slider };
     }
@@ -12,12 +20,12 @@ declare global {
 
 // Panel with sliders to control position and rotation
 // Returns the created panel element. It appends itself to document.body like the in-sample version.
-export function createTransformPanel(): HTMLDivElement {
+export function createTransformPanel(element?: HTMLElement, panelId?: string): HTMLDivElement {
     const panel = document.createElement('div');
+    panel.id = panelId ?? 'transformPanel';
     panel.style.position = 'absolute';
-    panel.style.top = '10px';
-    panel.style.right = '10px';
     panel.style.minWidth = '260px';
+    panel.style.minHeight = '260px';
     panel.style.padding = '10px';
     panel.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, monospace';
     panel.style.fontSize = '12px';
@@ -100,11 +108,15 @@ export function createTransformPanel(): HTMLDivElement {
     rotY = panel.querySelector('#rotY') as Slider;
     rotZ = panel.querySelector('#rotZ') as Slider;
 
-    panel.positions = { x: posX, y: posY, z: posZ };
-    panel.rotations = { x: rotX, y: rotY, z: rotZ };
+    panel.positions = {x: posX, y: posY, z: posZ};
+    panel.rotations = {x: rotX, y: rotY, z: rotZ};
 
     // Attach update helpers to panel instance
-    panel.updatePositions = ( targets: { x: { value: string | number }; y: { value: string | number }; z: { value: string | number } }) => {
+    panel.updatePositions = (targets: {
+        x: { value: string | number };
+        y: { value: string | number };
+        z: { value: string | number }
+    }) => {
         const ox = panel.querySelector('#posXOut') as HTMLElement | null;
         const oy = panel.querySelector('#posYOut') as HTMLElement | null;
         const oz = panel.querySelector('#posZOut') as HTMLElement | null;
@@ -113,7 +125,11 @@ export function createTransformPanel(): HTMLDivElement {
         if (oz) oz.textContent = targets.z.value as string;
     };
 
-    panel.updateRotation = (targets: { x: { value: string | number }; y: { value: string | number }; z: { value: string | number } }) => {
+    panel.updateRotation = (targets: {
+        x: { value: string | number };
+        y: { value: string | number };
+        z: { value: string | number }
+    }) => {
         const ox = panel.querySelector('#rotXOut') as HTMLElement | null;
         const oy = panel.querySelector('#rotYOut') as HTMLElement | null;
         const oz = panel.querySelector('#rotZOut') as HTMLElement | null;
@@ -122,6 +138,14 @@ export function createTransformPanel(): HTMLDivElement {
         if (oz) oz.textContent = targets.z.value as string;
     };
 
-    document.body.appendChild(panel);
+    if (element == null) {
+        console.warn('No element provided for panel, appending to document.body');
+        element = document.body;
+    } else {
+        console.warn('Element exists, appending to provided element');
+
+    }
+
+    element.appendChild(panel);
     return panel;
 }
