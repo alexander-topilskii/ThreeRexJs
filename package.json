@@ -12,6 +12,8 @@
     "dev:cube-plane-1": "node scripts/dev.mjs samples/cubes/cube-plane-1",
     "dev:cube-phisics-1": "node scripts/dev.mjs samples/cubes/cube-phisics-1",
     "dev:cube_shaders_1": "node scripts/dev.mjs samples/shaders/sample-1",
+    "_comment": "--------------------------------------------------------",
+    "dev:ux-controls-1": "node scripts/dev.mjs samples/ux/ux-controls-1",
     "build": "node scripts/build-all.mjs",
     "preview": "vite preview --strictPort"
   },
