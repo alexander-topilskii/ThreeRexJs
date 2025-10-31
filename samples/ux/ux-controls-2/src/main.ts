@@ -25,7 +25,7 @@ const threeComponents: ThreeComponents = createThree()
         })
     });
 
-const tp = new TransformPanel({
+const transformPanel = new TransformPanel({
     id: "transformPanel",
     container: draggableBox,
     floating: false,
@@ -35,7 +35,7 @@ const tp = new TransformPanel({
 });
 
 // Подписка на изменения
-tp.onChange(({type, value}) => {
+transformPanel.onChange(({type, value}) => {
     if (type === "position") {
         cube.position.set(value.x, value.y, value.z);
     } else {
@@ -48,8 +48,8 @@ function animate() {
     cube.rotation.x += 0.01;
     cube.rotation.y += 0.01;
 
-    tp.setPosition(cube.position)
-    tp.setRotationDeg(cube.rotation)
+    transformPanel.setPosition(cube.position)
+    transformPanel.setRotationDeg(cube.rotation)
 
     threeComponents.draw()
 }
