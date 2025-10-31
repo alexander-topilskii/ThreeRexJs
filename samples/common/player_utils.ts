@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {Updatable} from "./game/GameLoopManager";
 
 export type PlayerControllerOptions = {
   mouseSensitivity?: number; // radians per pixel
@@ -31,7 +32,7 @@ export function createPlayerController(
   camera: THREE.PerspectiveCamera,
   domElement: HTMLElement,
   options: PlayerControllerOptions = {}
-): PlayerController {
+): PlayerController  {
   const mouseSensitivity = options.mouseSensitivity ?? 0.0025;
   const moveSpeed = options.moveSpeed ?? 4;
   const verticalSpeed = options.verticalSpeed ?? 4;

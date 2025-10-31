@@ -36,7 +36,7 @@ export class TransformPanel {
 
     private onChangeSubscribers: Array<(p: ChangePayload) => void> = [];
 
-    constructor(opts: TransformPanelOptions = {}) {
+    constructor(opts: TransformPanelOptions = {}, onChangeListener: (p: ChangePayload) => void) {
         const {
             container = document.body,
             id = "transformPanel",
@@ -195,6 +195,9 @@ export class TransformPanel {
         this.el = panel;
         this.pos = {x: posX, y: posY, z: posZ};
         this.rot = {x: rotX, y: rotY, z: rotZ};
+
+
+        this.onChange(onChangeListener)
     }
 
     // --- публичный API ---
