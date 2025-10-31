@@ -1,36 +1,187 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="ru">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Ux samples — ThreeRex.js</title>
-    <link rel="stylesheet" href="style.css"/>
+    <meta charset="utf-8" />
+    <title>CSS-3D куб на div’ах (drag to rotate)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        :root {
+            --bg: #0e1013;
+            --face: #1a1f2a;
+            --accent: #61dafb;
+            --size: 260px;   /* размер грани куба */
+        }
+
+        html, body { height: 100%; margin: 0; background: var(--bg); color: #e8ecf1; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+
+        .wrap {
+            height: 100%;
+            display: grid;
+            place-items: center;
+            user-select: none;
+            touch-action: none; /* нужно для нормального drag на мобильных */
+        }
+
+        /* сцена с перспективой */
+        .scene {
+            width: calc(var(--size) * 2.2);
+            height: calc(var(--size) * 2.2);
+            perspective: 900px;                 /* глубина перспективы */
+            perspective-origin: 50% 45%;
+        }
+
+        /* контейнер, который вращаем */
+        .cube {
+            position: relative;
+            width: var(--size);
+            height: var(--size);
+            margin: 0 auto;
+            transform-style: preserve-3d;       /* включаем 3D для детей */
+            will-change: transform;
+            transition: transform 0.05s linear; /* микро-смягчение */
+        }
+
+        .face {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            background: var(--face);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+            backface-visibility: hidden; /* чтобы тыльная сторона не просвечивала текстом */
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: 0.4px;
+        }
+
+        .face span { opacity: 0.95; padding: 12px 16px; background: rgba(255,255,255,0.06); border-radius: 10px; }
+
+        /* позиционируем 6 граней куба */
+        /* половина толщины, чтобы вынести грань наружу */
+        /* translateZ(size/2), а повороты по осям разворачивают грань как надо */
+        .front  { transform: translateZ(calc(var(--size) / 2)); }
+        .back   { transform: rotateY(180deg) translateZ(calc(var(--size) / 2)); }
+        .right  { transform: rotateY(90deg)  translateZ(calc(var(--size) / 2)); }
+        .left   { transform: rotateY(-90deg) translateZ(calc(var(--size) / 2)); }
+        .top    { transform: rotateX(90deg)  translateZ(calc(var(--size) / 2)); }
+        .bottom { transform: rotateX(-90deg) translateZ(calc(var(--size) / 2)); }
+
+        /* подсказка */
+        .hint {
+            position: fixed;
+            bottom: 14px; left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px; opacity: 0.7;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 6px 10px; border-radius: 8px;
+        }
+
+        /* декоративные точки, чтобы видно было перспективу */
+        .dotgrid {
+            position: absolute; inset: -40% -40%;
+            background:
+                    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.08) 1px, transparent 2px) 0 0/24px 24px;
+            mask: radial-gradient(circle at center, rgba(0,0,0,0.55), rgba(0,0,0,1) 70%);
+            pointer-events: none;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+    </style>
 </head>
 <body>
-
-<div id="main-split">
-    <div id="box">Перетащи меня</div>
-
-    <div id="left">
-        Левая панель
-
-        <div id="left-split">
-            <div id="left-top">
-                left top
-            </div>
-            <div id="left-bottom">
-                left bottom
-            </div>
+<div class="wrap">
+    <div class="scene" id="scene">
+        <div class="dotgrid" aria-hidden="true"></div>
+        <div class="cube" id="cube">
+            <div class="face front"><span>Front</span></div>
+            <div class="face back"><span>Back</span></div>
+            <div class="face right"><span>Right</span></div>
+            <div class="face left"><span>Left</span></div>
+            <div class="face top"><span>Top</span></div>
+            <div class="face bottom"><span>Bottom</span></div>
         </div>
-
     </div>
-    <div id="right">
-        Правая панель
-        text text
-    </div>
+    <div class="hint">Тяни мышкой/пальцем для вращения • Колесо — масштаб сцены</div>
 </div>
 
+<script>
+    // Без библиотек, только немного здравого смысла.
+    const cube = document.getElementById('cube');
+    const scene = document.getElementById('scene');
 
-<script type="module" src="/src/main.ts"></script>
+    // текущие углы Эйлера
+    let rx = -12; // стартовый наклон
+    let ry = -25;
+    let scale = 1;
+
+    // drag-инерция
+    let dragging = false;
+    let lastX = 0, lastY = 0;
+    let vx = 0, vy = 0;          // угловые скорости
+    const damp = 0.92;           // затухание инерции
+    const speed = 0.35;          // чувствительность
+
+    function applyTransform() {
+        cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) scale(${scale})`;
+    }
+    applyTransform();
+
+    // мышь
+    cube.addEventListener('pointerdown', e => {
+        dragging = true;
+        lastX = e.clientX; lastY = e.clientY;
+        cube.setPointerCapture(e.pointerId);
+    });
+
+    cube.addEventListener('pointermove', e => {
+        if (!dragging) return;
+        const dx = e.clientX - lastX;
+        const dy = e.clientY - lastY;
+        lastX = e.clientX; lastY = e.clientY;
+
+        // обновляем углы и скорость
+        ry += dx * speed * 0.2;
+        rx -= dy * speed * 0.2;
+
+        vx = -dy * speed;
+        vy = dx * speed;
+
+        applyTransform();
+    });
+
+    cube.addEventListener('pointerup', e => {
+        dragging = false;
+        cube.releasePointerCapture(e.pointerId);
+    });
+
+    cube.addEventListener('pointercancel', () => { dragging = false; });
+
+    // колесо для зума сцены
+    scene.addEventListener('wheel', e => {
+        e.preventDefault();
+        const k = Math.exp(-e.deltaY * 0.0015); // плавный экспоненциальный зум
+        scale = Math.min(2.2, Math.max(0.6, scale * k));
+        applyTransform();
+    }, { passive: false });
+
+    // инерционное докручивание
+    function tick() {
+        if (!dragging) {
+            vx *= damp; vy *= damp;
+            if (Math.abs(vx) > 0.01 || Math.abs(vy) > 0.01) {
+                rx += vx * 0.1;
+                ry += vy * 0.1;
+                applyTransform();
+            }
+        }
+        requestAnimationFrame(tick);
+    }
+    tick();
+
+    // адаптация под resize — ничего не надо, всё в CSS
+</script>
 </body>
 </html>

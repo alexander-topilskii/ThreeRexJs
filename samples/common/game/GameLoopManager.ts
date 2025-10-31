@@ -12,7 +12,7 @@ export class GameLoopManager {
     private isRunning: boolean = false;
     private updatables: Array<Updatable>;
 
-    constructor(updatables: Array<Updatable>) {
+    constructor(updatables: Array<Updatable> = Array()) {
         this.updatables = updatables;
     }
 

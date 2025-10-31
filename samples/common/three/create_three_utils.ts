@@ -1,14 +1,23 @@
 import * as THREE from 'three';
 import {Mesh, Vector3} from 'three';
 import {getPerspectiveCamera} from "./three_utils";
+import {Updatable} from "../game/GameLoopManager";
 
-export class ThreeComponents {
+export class ThreeComponents implements Updatable {
     constructor(
         public scene: THREE.Scene,
         public camera: THREE.PerspectiveCamera,
         public renderer: THREE.WebGLRenderer
     ) {
-    };
+    }
+
+    start(): void {
+
+    }
+
+    stop(): void {
+
+    }
 
     onWindowResize(width: number, height: number) {
         this.renderer.setSize(width, height);
@@ -26,7 +35,7 @@ export class ThreeComponents {
         window.addEventListener('resize', () => this.resizeRendererToRightPane(element));
     }
 
-    draw() {
+    update(dt: number) {
         this.renderer.render(this.scene, this.camera);
     }
 
