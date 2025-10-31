@@ -6,7 +6,8 @@ export class ThreeComponents {
     constructor(
         public scene: THREE.Scene,
         public camera: THREE.PerspectiveCamera,
-        public renderer: THREE.WebGLRenderer) {
+        public renderer: THREE.WebGLRenderer
+    ) {
     };
 
     onWindowResize(width: number, height: number) {
@@ -21,10 +22,20 @@ export class ThreeComponents {
 
     displayIn(element: HTMLElement) {
         element.appendChild(this.renderer.domElement);
+
+        window.addEventListener('resize', () => this.resizeRendererToRightPane(element));
     }
 
     draw() {
         this.renderer.render(this.scene, this.camera);
+    }
+
+    resizeRendererToRightPane(container: HTMLElement) {
+        const rect = container.getBoundingClientRect();
+        const w = Math.max(1, Math.floor(rect.width));
+        const h = Math.max(1, Math.floor(rect.height));
+
+        this.onWindowResize(w, h)
     }
 }
 

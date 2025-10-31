@@ -1,56 +1,33 @@
-import Split from 'split.js';
 import {Mesh} from 'three';
 import {createThree, ThreeComponents} from "../../../common/three/create_three_utils";
 import {createCube} from "../../../common/three/box_utils";
 import '../../../common/kotlin/scope'
-import Draggabilly from 'draggabilly';
 import {TransformPanel} from "../../../common/ui/slider_panel";
-
-const box = document.getElementById('box')!;
-const draggie = new Draggabilly(box, {containment: document.body});
-
-const mainSplit = Split(['#left', '#right'], {
-    sizes: [30, 70],
-    minSize: [160, 200],
-    gutterSize: 8,
-    direction: 'horizontal',
-    onDrag: () => resizeRendererToRightPane(),
-});
-
-const topBottomLeftSplit = Split(['#left-top', '#left-bottom'], {
-    sizes: [50, 50],
-    minSize: [50, 200],
-    gutterSize: 8,
-    direction: 'vertical',
-});
+import {MovablePanels} from "../../../common/ui/movable_panels";
+import {createDraggabilly} from "../../../common/ui/draggeble_utils";
 
 
-const rightPanel = document.getElementById('right')!;
-const leftPanel = document.getElementById('left-top')!;
-
+// -- ui components
+const draggableBox = createDraggabilly(document.getElementById('box')!)
+const movablePanels = new MovablePanels()
 
 // --- Three.js ---
-const threeComponents: ThreeComponents = createThree().also(threeComponents => {
-    threeComponents.displayIn(rightPanel)
-});
-
 const cube: Mesh = createCube();
-threeComponents.addOnScene(cube);
 
-function resizeRendererToRightPane() {
-    const rect = rightPanel.getBoundingClientRect();
-    const w = Math.max(1, Math.floor(rect.width));
-    const h = Math.max(1, Math.floor(rect.height));
+const threeComponents: ThreeComponents = createThree()
+    .also(threeComponents => {
+        threeComponents.displayIn(movablePanels.rightPanel)
+        threeComponents.addOnScene(cube);
+        threeComponents.resizeRendererToRightPane(movablePanels.rightPanel);
 
-    threeComponents.onWindowResize(w, h)
-}
-
-// первичная подгонка размера
-resizeRendererToRightPane();
+        movablePanels.addOnLeftLeftRightPanelSizeChanged(() => {
+            threeComponents.resizeRendererToRightPane(movablePanels.rightPanel)
+        })
+    });
 
 const tp = new TransformPanel({
     id: "transformPanel",
-    container: box,
+    container: draggableBox,
     floating: false,
     anchor: {top: "12px", right: "12px"},
     initialPosition: {x: 0, y: 1, z: 2},
@@ -79,5 +56,4 @@ function animate() {
 
 animate();
 
-window.addEventListener('resize', resizeRendererToRightPane);
 
