@@ -4,9 +4,10 @@ import {createThree, ThreeComponents} from "../../../common/three/create_three_u
 import {createCube} from "../../../common/three/box_utils";
 import '../../../common/kotlin/scope'
 import Draggabilly from 'draggabilly';
-import {createTransformPanel} from "../../../common/panel_utils";
 import {TransformPanel} from "../../../common/ui/slider_panel";
-import {degToRad, radToDeg} from "../../../common/ui_utils";
+
+const box = document.getElementById('box')!;
+const draggie = new Draggabilly(box, {containment: document.body});
 
 const mainSplit = Split(['#left', '#right'], {
     sizes: [30, 70],
@@ -49,7 +50,7 @@ resizeRendererToRightPane();
 
 const tp = new TransformPanel({
     id: "transformPanel",
-    container: leftPanel,
+    container: box,
     floating: false,
     anchor: {top: "12px", right: "12px"},
     initialPosition: {x: 0, y: 1, z: 2},
@@ -61,7 +62,7 @@ tp.onChange(({type, value}) => {
     if (type === "position") {
         cube.position.set(value.x, value.y, value.z);
     } else {
-        cube.rotation.set(value.x/10, value.y/10, value.z/10);
+        cube.rotation.set(value.x / 10, value.y / 10, value.z / 10);
     }
 });
 
@@ -80,7 +81,3 @@ animate();
 
 window.addEventListener('resize', resizeRendererToRightPane);
 
-
-const box = document.getElementById('box')!;
-
-const draggie = new Draggabilly(box, {containment: document.body});
