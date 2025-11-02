@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {Mesh, Vector3} from 'three';
+import {Mesh, Object3D, Vector3} from 'three';
 import {getPerspectiveCamera} from "./three_utils";
 import {Updatable} from "../game/GameLoopManager";
 
@@ -25,8 +25,12 @@ export class ThreeComponents implements Updatable {
         this.camera.updateProjectionMatrix();
     }
 
-    addOnScene(cube: Mesh) {
-        this.scene.add(cube)
+    addOnScene(obj: Object3D) {
+        this.scene.add(obj)
+    }
+
+    addAllOnScene(objs: Array<Object3D>) {
+        objs.forEach(obj => this.scene.add(obj))
     }
 
     displayIn(element: HTMLElement) {
