@@ -1,10 +1,10 @@
 // Build all samples into ./site, preserving relative structure with slugified paths
 // and generating a rich homepage that links to every category.
 import { globby } from 'globby';
-import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
+import { build as viteBuild } from 'vite';
 
 const ROOT = process.cwd();
 const SRC = path.join(ROOT, 'samples');
@@ -308,23 +308,16 @@ for (const entry of entries) {
   await fs.ensureDir(destDir);
 
   console.log(`Building: ${entry.rel} -> ${path.relative(ROOT, destDir)}`);
-  await execa(
-    'npx',
-    [
-      'vite',
-      'build',
-      '--config',
-      path.join(ROOT, 'vite.config.ts'),
-      '--base',
-      './',
-      '--outDir',
-      destDir,
-    ],
-    {
-      stdio: 'inherit',
-      cwd: sampleDir,
-    }
-  );
+  await viteBuild({
+    configFile: path.join(ROOT, 'vite.config.ts'),
+    root: sampleDir,
+    base: './',
+    logLevel: 'info',
+    build: {
+      outDir: destDir,
+      emptyOutDir: true,
+    },
+  });
 }
 
 console.log('Site assembled at ./site');
