@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Сравнение роста: k^N, N!, 2^{N^2} — Three.js</title>
+  <link rel="stylesheet" href="./styles.css"/>
+</head>
+<body>
+  <header>
+    <h1>Сравнение роста функций</h1>
+    <div class="controls">
+      <label>k: <input id="kInput" type="number" value="2" min="2" max="16" step="1"/></label>
+      <label>N max: <input id="nMaxInput" type="number" value="20" min="5" max="200" step="1"/></label>
+      <button id="regen">Перестроить</button>
+      <span class="hint">Y = log10(f(N)). Масштаб нормирован к максимуму.</span>
+    </div>
+  </header>
+  <div id="scene"></div>
+  <footer>
+    <p>ЛКМ — вращение, ПКМ — панорама, колесо — масштаб. Оси: X=N, Y=log10 значения, Z — серия.</p>
+  </footer>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>

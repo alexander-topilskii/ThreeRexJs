@@ -17,6 +17,7 @@
     "dev:ux-controls-1": "node scripts/dev.mjs samples/ux/ux-controls-1",
     "dev:ux-controls-2": "node scripts/dev.mjs samples/ux/ux-controls-2",
     "dev:ux-controls-3": "node scripts/dev.mjs samples/ux/ux-controls-3",
+    "dev:uux-graph-1": "node scripts/dev.mjs samples/ux/ux-graph-1",
     "_comment3": "---------------------- Shaders --------------------------",
     "build": "node scripts/build-all.mjs",
     "preview": "vite preview --strictPort"
