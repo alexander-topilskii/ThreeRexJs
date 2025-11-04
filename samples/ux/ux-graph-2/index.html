@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>График роста: k^N, N!, 2^{N^2} — Canvas</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<header>
+    <h1>Сравнение роста функций (2D)</h1>
+    <div class="controls">
+        <label>k:
+            <input id="kInput" type="number" value="2" min="2" max="16" step="1">
+        </label>
+        <label>N max:
+            <input id="nMaxInput" type="number" value="50" min="5" max="500" step="1">
+        </label>
+        <label>Лог-масштаб Y:
+            <select id="yScaleSelect">
+                <option value="log10" selected>log10(f(N))</option>
+                <option value="ln">ln(f(N))</option>
+                <option value="linear">нормированное</option>
+            </select>
+        </label>
+        <button id="regen">Перестроить</button>
+    </div>
+</header>
+
+<main>
+    <div class="canvas-wrap">
+        <canvas id="plot" width="1100" height="600"></canvas>
+        <div class="legend" id="legend"></div>
+    </div>
+    <p class="hint">
+        Оси: X = N. Y = выбранное преобразование. Для устойчивости используется лог-масштаб по умолчанию.
+    </p>
+</main>
+
+<footer>
+    <small>Чистый HTML + CSS + TypeScript (Canvas 2D). Без библиотек.</small>
+</footer>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

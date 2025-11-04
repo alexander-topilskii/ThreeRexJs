@@ -16,8 +16,10 @@
     "_comment2": "---------------------- UX --------------------------",
     "dev:ux-controls-1": "node scripts/dev.mjs samples/ux/ux-controls-1",
     "dev:ux-controls-2": "node scripts/dev.mjs samples/ux/ux-controls-2",
-    "dev:ux-controls-3": "node scripts/dev.mjs samples/ux/ux-controls-3",
+    "dev:ux-controls-3-cube-css": "node scripts/dev.mjs samples/ux/ux-controls-3",
+    "dev:ux-controls-4": "node scripts/dev.mjs samples/ux/ux-controls-4",
     "dev:uux-graph-1": "node scripts/dev.mjs samples/ux/ux-graph-1",
+    "dev:uux-graph-2": "node scripts/dev.mjs samples/ux/ux-graph-2",
     "_comment3": "---------------------- Shaders --------------------------",
     "build": "node scripts/build-all.mjs",
     "preview": "vite preview --strictPort"
