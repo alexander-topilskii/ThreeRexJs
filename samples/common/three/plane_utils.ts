@@ -56,7 +56,8 @@ export class Plane {
 
 
         let ground = new THREE.Mesh(geo, mat);
-        // ground.rotation.x = -Math.PI / 2;   // положим в XZ
+        ground.rotation.x = -Math.PI / 2;   // положим в XZ
+
         ground.position.x = position.x;
         ground.position.y = position.y + 0.001;
         ground.position.z = position.z;
